@@ -28,7 +28,7 @@ public class Benchmark extends Thread {
 	private BenchmarkResult result;
 	private long startTime;
 
-	public String durationToString(long time) {
+	private String durationToString(long time) {
 		Duration duration = Duration.ofMillis(time);
 
 		long hours = duration.toHours();
