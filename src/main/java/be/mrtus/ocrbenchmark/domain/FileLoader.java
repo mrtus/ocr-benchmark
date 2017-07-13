@@ -63,30 +63,34 @@ public class FileLoader extends Thread {
 	}
 
 	private String loadFileContents(Path p) throws IOException {
-		this.logger.fine("Loading file contents for " + p.toString());
-		
+		this.logger.finer("Loading file contents for " + p.toString());
+
 		Map<String, Charset> charsets = Charset.availableCharsets();
 
-		String fileContents = "";
 		for(Map.Entry<String, Charset> entry : charsets.entrySet()) {
 			try {
-				fileContents = Files.readAllLines(p, entry.getValue())
+				return Files.readAllLines(p, entry.getValue())
 						.stream()
 						.collect(Collectors.joining());
-				break;
 			} catch(MalformedInputException | UnmappableCharacterException e) {
 			}
 		}
 
-		return fileContents;
+		return null;
 	}
 
 	private void processFile(Path p) {
 		try {
-			LoadedFile file = new LoadedFile(p, this.loadFileContents(p));
+			String contents = this.loadFileContents(p);
 
-			this.logger.info("File was put in queue: " + p.toString());
+			if(contents == null) {
+				return;
+			}
 
+			LoadedFile file = new LoadedFile(p, contents);
+
+			this.logger.fine("File was processed " + p.toString());
+			
 			this.queue.put(file);
 
 		} catch(InterruptedException | IOException ex) {
