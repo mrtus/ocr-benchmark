@@ -12,6 +12,8 @@ public class Benchmark extends Thread {
 	private long endTime;
 	private final Logger logger = Logger.getLogger(Benchmark.class.getName());
 	private long startTime;
+	@Autowired
+	private FileLoader fileLoader;
 
 	public String durationToString(long time) {
 		Duration duration = Duration.ofMillis(time);
@@ -53,7 +55,7 @@ public class Benchmark extends Thread {
 	}
 
 	private void prepareBenchmark() {
-
+		this.fileLoader.start();
 	}
 
 	private void startBenchmark() {
