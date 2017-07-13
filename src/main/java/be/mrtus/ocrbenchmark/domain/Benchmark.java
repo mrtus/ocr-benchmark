@@ -28,27 +28,6 @@ public class Benchmark extends Thread {
 	private BenchmarkResult result;
 	private long startTime;
 
-	private String durationToString(long time) {
-		Duration duration = Duration.ofMillis(time);
-
-		long hours = duration.toHours();
-
-		Duration minutesDuration = duration.minusHours(hours);
-		long minutes = minutesDuration.toMinutes();
-
-		Duration secondsDuration = minutesDuration.minusMinutes(minutes);
-		long seconds = secondsDuration.getSeconds();
-
-		Duration milliesDuratoin = secondsDuration.minusSeconds(seconds);
-		long millies = milliesDuratoin.toMillis();
-
-		String durationString = hours + "h "
-								+ minutes + "m "
-								+ seconds + "." + millies + "s ";
-
-		return durationString;
-	}
-
 	@Override
 	public void run() {
 		this.prepareBenchmark();
@@ -74,6 +53,27 @@ public class Benchmark extends Thread {
 		});
 	}
 
+	private String durationToString(long time) {
+		Duration duration = Duration.ofMillis(time);
+
+		long hours = duration.toHours();
+
+		Duration minutesDuration = duration.minusHours(hours);
+		long minutes = minutesDuration.toMinutes();
+
+		Duration secondsDuration = minutesDuration.minusMinutes(minutes);
+		long seconds = secondsDuration.getSeconds();
+
+		Duration milliesDuratoin = secondsDuration.minusSeconds(seconds);
+		long millies = milliesDuratoin.toMillis();
+
+		String durationString = hours + "h "
+								+ minutes + "m "
+								+ seconds + "." + millies + "s ";
+
+		return durationString;
+	}
+
 	private void endBenchmark() {
 		this.endTime = System.currentTimeMillis();
 
@@ -93,11 +93,11 @@ public class Benchmark extends Thread {
 
 		this.fileLoader.start();
 
-		int size = this.config.getParallelBenchmarks();
-
 		this.result = new BenchmarkResult();
 
 		this.benchmarkResultRepository.save(this.result);
+
+		int size = this.config.getParallelBenchmarks();
 
 		IntStream.range(0, size)
 				.forEach(id -> {
