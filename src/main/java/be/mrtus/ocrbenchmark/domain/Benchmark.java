@@ -1,11 +1,12 @@
 package be.mrtus.ocrbenchmark.domain;
 
 import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
-import be.mrtus.ocrbenchmark.domain.entities.LoadedFile;
 import java.time.Duration;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class Benchmark extends Thread {
@@ -16,6 +17,7 @@ public class Benchmark extends Thread {
 	@Autowired
 	private FileLoader fileLoader;
 	private final Logger logger = Logger.getLogger(Benchmark.class.getName());
+	private final List<Processor> processors = new ArrayList<>();
 	private long startTime;
 
 	public String durationToString(long time) {
@@ -45,35 +47,23 @@ public class Benchmark extends Thread {
 
 		this.startBenchmark();
 
-		try {
-			this.doBenchmark();
-		} catch(InterruptedException ex) {
-			this.logger.log(Level.SEVERE, null, ex);
-		}
+		this.doBenchmark();
 
 		this.endBenchmark();
 
 		System.exit(0);
 	}
 
-	private void doBenchmark() throws InterruptedException {
-		ArrayBlockingQueue<LoadedFile> queue = this.fileLoader.getQueue();
+	private void doBenchmark() {
+		this.processors.forEach(p -> p.start());
 
-		while(true) {
-			while(queue.peek() == null) {
-				if(!this.fileLoader.isLoading()) {
-					break;
-				}
+		this.processors.forEach(p -> {
+			try {
+				p.join();
+			} catch(InterruptedException ex) {
+				this.logger.log(Level.SEVERE, null, ex);
 			}
-
-			LoadedFile lf = queue.poll();
-
-			if(lf == null) {
-				break;
-			}
-
-			this.processFile(lf);
-		}
+		});
 	}
 
 	private void endBenchmark() {
@@ -91,17 +81,18 @@ public class Benchmark extends Thread {
 
 		this.fileLoader.start();
 
+		int size = this.config.getParallelBenchmarks();
+
+		IntStream.range(0, size)
+				.forEach(i -> this.processors.add(new Processor(i, this.fileLoader)));
+
 		try {
 			this.logger.info("Sleeping 5000 ms");
+
 			Thread.sleep(5000);
 		} catch(InterruptedException ex) {
-			Logger.getLogger(Benchmark.class.getName()).log(Level.SEVERE, null, ex);
+			this.logger.log(Level.SEVERE, null, ex);
 		}
-	}
-
-	private void processFile(LoadedFile lf) {
-		this.logger.info("Processing file " + lf.getPath().toString());
-		
 	}
 
 	private void startBenchmark() {
