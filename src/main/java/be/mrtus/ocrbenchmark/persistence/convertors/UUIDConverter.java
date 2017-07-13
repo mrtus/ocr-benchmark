@@ -1,4 +1,4 @@
-package be.mrtus.ocrbenchmark.persistence;
+package be.mrtus.ocrbenchmark.persistence.convertors;
 
 import java.util.UUID;
 import javax.persistence.AttributeConverter;

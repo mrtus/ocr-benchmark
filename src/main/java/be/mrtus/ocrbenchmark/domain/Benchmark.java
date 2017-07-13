@@ -1,6 +1,9 @@
 package be.mrtus.ocrbenchmark.domain;
 
 import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
+import be.mrtus.ocrbenchmark.domain.entities.BenchmarkResult;
+import be.mrtus.ocrbenchmark.persistence.BenchmarkResultRepository;
+import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +15,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class Benchmark extends Thread {
 
 	@Autowired
+	private BenchmarkResultRepository benchmarkResultRepository;
+	@Autowired
 	private BenchmarkConfig config;
 	private long endTime;
 	@Autowired
 	private FileLoader fileLoader;
 	private final Logger logger = Logger.getLogger(Benchmark.class.getName());
+	@Autowired
+	private ProcessResultRepository processResultRepository;
 	private final List<Processor> processors = new ArrayList<>();
+	private BenchmarkResult result;
 	private long startTime;
 
 	public String durationToString(long time) {
@@ -71,6 +79,10 @@ public class Benchmark extends Thread {
 
 		String duration = this.durationToString(this.endTime - this.startTime);
 
+		this.result.setDuration(this.endTime - this.startTime);
+
+		this.benchmarkResultRepository.save(this.result);
+
 		this.logger.info("Benchmark ended after " + duration);
 		this.logger.info("====================");
 	}
@@ -83,8 +95,21 @@ public class Benchmark extends Thread {
 
 		int size = this.config.getParallelBenchmarks();
 
+		this.result = new BenchmarkResult();
+
+		this.benchmarkResultRepository.save(this.result);
+
 		IntStream.range(0, size)
-				.forEach(i -> this.processors.add(new Processor(i, this.fileLoader)));
+				.forEach(id -> {
+					Processor processor = new Processor(
+							id,
+							this.fileLoader,
+							this.processResultRepository,
+							this.result
+					);
+
+					this.processors.add(processor);
+				});
 
 		try {
 			this.logger.info("Sleeping 5000 ms");
