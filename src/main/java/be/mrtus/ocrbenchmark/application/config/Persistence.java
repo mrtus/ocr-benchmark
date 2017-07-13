@@ -38,7 +38,7 @@ public class Persistence {
 
 		factory.setDataSource(this.dataSource());
 		factory.setJpaVendorAdapter(this.jpaVendorAdapter());
-		factory.setPackagesToScan("be.mrtus.ts3history");
+		factory.setPackagesToScan("be.mrtus.ocrbenchmark");
 		factory.setJpaDialect(this.jpaDialect());
 
 		Properties properties = new Properties();
