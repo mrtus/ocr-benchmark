@@ -68,7 +68,7 @@ public class FileLoader extends Thread {
 		Map<String, Charset> charsets = Charset.availableCharsets();
 
 		for(Map.Entry<String, Charset> entry : charsets.entrySet()) {
-			try {
+			try {			
 				return Files.readAllLines(p, entry.getValue())
 						.stream()
 						.collect(Collectors.joining());
@@ -92,7 +92,6 @@ public class FileLoader extends Thread {
 			this.logger.fine("File was processed " + p.toString());
 			
 			this.queue.put(file);
-
 		} catch(InterruptedException | IOException ex) {
 			this.logger.log(Level.SEVERE, null, ex);
 		}
