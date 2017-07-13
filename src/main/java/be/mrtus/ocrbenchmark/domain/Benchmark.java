@@ -103,6 +103,7 @@ public class Benchmark extends Thread {
 				.forEach(id -> {
 					Processor processor = new Processor(
 							id,
+							this.config,
 							this.fileLoader,
 							this.processResultRepository,
 							this.result
