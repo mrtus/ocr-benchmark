@@ -7,11 +7,8 @@ public class LoadedFile {
 	private String fileContents;
 	private Path path;
 
-	public LoadedFile(Path path) {
+	public LoadedFile(Path path, String fileContents) {
 		this.path = path;
-	}
-
-	public void setFileContents(String fileContents) {
 		this.fileContents = fileContents;
 	}
 
