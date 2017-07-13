@@ -4,8 +4,11 @@ import be.mrtus.ocrbenchmark.application.config.properties.FileLoaderConfig;
 import be.mrtus.ocrbenchmark.domain.entities.LoadedFile;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.UnmappableCharacterException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,20 +19,27 @@ public class FileLoader extends Thread {
 
 	@Autowired
 	private FileLoaderConfig config;
+	private volatile boolean loading;
 	private final Logger logger = Logger.getLogger(FileLoader.class.getName());
 	private ArrayBlockingQueue<LoadedFile> queue;
 
 	public FileLoader() {
-		this.setDaemon(false);
+		this.setDaemon(true);
 	}
 
 	public ArrayBlockingQueue<LoadedFile> getQueue() {
 		return this.queue;
 	}
 
+	public boolean isLoading() {
+		return this.loading;
+	}
+
 	@Override
 	public void run() {
 		this.queue = new ArrayBlockingQueue<>(this.config.getQueueSize());
+
+		this.loading = true;
 
 		Path path = new File(this.config.getFileDir()).toPath();
 
@@ -37,6 +47,7 @@ public class FileLoader extends Thread {
 
 		try {
 			Files.walk(path)
+					.parallel()
 					.forEach(p -> {
 						if(Files.isRegularFile(p)) {
 							this.processFile(p);
@@ -45,25 +56,39 @@ public class FileLoader extends Thread {
 		} catch(IOException ex) {
 			this.logger.log(Level.SEVERE, null, ex);
 		}
+
+		this.loading = false;
+
+		this.logger.info("All files were processed in " + path.toString());
 	}
 
 	private String loadFileContents(Path p) throws IOException {
-		String fileContents = Files.readAllLines(p, Charset.forName("ISO-8859-1"))
-				.stream()
-				.collect(Collectors.joining());
+		this.logger.fine("Loading file contents for " + p.toString());
+		
+		Map<String, Charset> charsets = Charset.availableCharsets();
+
+		String fileContents = "";
+		for(Map.Entry<String, Charset> entry : charsets.entrySet()) {
+			try {
+				fileContents = Files.readAllLines(p, entry.getValue())
+						.stream()
+						.collect(Collectors.joining());
+				break;
+			} catch(MalformedInputException | UnmappableCharacterException e) {
+			}
+		}
 
 		return fileContents;
 	}
 
 	private void processFile(Path p) {
 		try {
-			LoadedFile file = new LoadedFile(p);
+			LoadedFile file = new LoadedFile(p, this.loadFileContents(p));
+
+			this.logger.info("File was put in queue: " + p.toString());
 
 			this.queue.put(file);
 
-			file.setFileContents(this.loadFileContents(p));
-
-			this.logger.info("File was put in queue: " + p.toString());
 		} catch(InterruptedException | IOException ex) {
 			this.logger.log(Level.SEVERE, null, ex);
 		}
