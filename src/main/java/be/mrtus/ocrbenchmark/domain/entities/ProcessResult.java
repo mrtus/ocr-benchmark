@@ -11,6 +11,7 @@ import javax.persistence.*;
 public class ProcessResult implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private double accuracy;
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = false)
 	private BenchmarkResult benchmarkResult;
 	private long duration;
@@ -23,6 +24,10 @@ public class ProcessResult implements Serializable {
 
 	public ProcessResult() {
 		this.id = UUID.randomUUID();
+	}
+
+	public double getAccuracy() {
+		return this.accuracy;
 	}
 
 	public BenchmarkResult getBenchmarkResult() {
@@ -43,6 +48,10 @@ public class ProcessResult implements Serializable {
 
 	public String getResult() {
 		return this.result;
+	}
+
+	public void setAccuracy(double accuracy) {
+		this.accuracy = accuracy;
 	}
 
 	public void setBenchmarkResult(BenchmarkResult result) {

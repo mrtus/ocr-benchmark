@@ -2,6 +2,7 @@ package be.mrtus.ocrbenchmark.domain;
 
 import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
 import be.mrtus.ocrbenchmark.domain.entities.BenchmarkResult;
+import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
 import be.mrtus.ocrbenchmark.persistence.BenchmarkResultRepository;
 import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
 import java.time.Duration;
@@ -38,7 +39,18 @@ public class Benchmark extends Thread {
 
 		this.endBenchmark();
 
+		this.processBenchmarkResults();
+
 		System.exit(0);
+	}
+
+	private void calculateAccuracy(ProcessResult result) {
+
+		double accuracy = 0.0;
+		
+		result.setAccuracy(accuracy);
+		
+		this.processResultRepository.save(result);
 	}
 
 	private void doBenchmark() {
@@ -119,6 +131,17 @@ public class Benchmark extends Thread {
 		} catch(InterruptedException ex) {
 			this.logger.log(Level.SEVERE, null, ex);
 		}
+	}
+
+	private void processBenchmarkResults() {
+		this.logger.info("Processing results");
+
+		List<ProcessResult> results = this.processResultRepository.findAllByBenchmarkResultId(this.result.getId());
+
+		results.forEach(result -> {
+			this.calculateAccuracy(result);
+		});
+
 	}
 
 	private void startBenchmark() {
