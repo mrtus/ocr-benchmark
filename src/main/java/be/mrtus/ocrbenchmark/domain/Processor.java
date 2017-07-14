@@ -102,7 +102,7 @@ public class Processor extends Thread {
 			processResult.setResult(responseResult);
 			processResult.setDuration(end - start);
 
-			this.resultRepository.add(processResult);
+			this.resultRepository.save(processResult);
 		} catch(MalformedURLException | URISyntaxException ex) {
 			this.logger.log(Level.SEVERE, null, ex);
 		} catch(IOException ex) {
