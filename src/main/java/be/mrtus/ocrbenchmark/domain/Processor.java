@@ -25,12 +25,12 @@ import org.apache.http.impl.client.HttpClientBuilder;
 
 public class Processor extends Thread {
 
+	private final BenchmarkConfig config;
 	private final FileLoader fileLoader;
 	private final int id;
 	private final Logger logger = Logger.getLogger(Processor.class.getName());
 	private final BenchmarkResult result;
 	private final ProcessResultRepository resultRepository;
-	private final BenchmarkConfig config;
 
 	public Processor(
 			int id,
