@@ -11,6 +11,7 @@ import javax.persistence.Id;
 public class BenchmarkResult implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private double avgAccuracy;
 	private long duration;
 	@Id
 	@Convert(converter = UUIDConverter.class)
@@ -20,8 +21,8 @@ public class BenchmarkResult implements Serializable {
 		this.id = UUID.randomUUID();
 	}
 
-	public void setDuration(long duration) {
-		this.duration = duration;
+	public double getAvgAccuracy() {
+		return this.avgAccuracy;
 	}
 
 	public long getDuration() {
@@ -30,5 +31,13 @@ public class BenchmarkResult implements Serializable {
 
 	public UUID getId() {
 		return this.id;
+	}
+
+	public void setAvgAccuracy(double avgAccuracy) {
+		this.avgAccuracy = avgAccuracy;
+	}
+
+	public void setDuration(long duration) {
+		this.duration = duration;
 	}
 }

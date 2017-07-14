@@ -8,6 +8,7 @@ import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -44,13 +45,29 @@ public class Benchmark extends Thread {
 		System.exit(0);
 	}
 
-	private void calculateAccuracy(ProcessResult result) {
+	private void calculateAccuracy(List<ProcessResult> results) {
+		results.forEach(result -> {
+			double accuracy = 0.0;
 
-		double accuracy = 0.0;
-		
-		result.setAccuracy(accuracy);
-		
-		this.processResultRepository.save(result);
+			result.setAccuracy(accuracy);
+
+			this.processResultRepository.save(result);
+		});
+
+		OptionalDouble optional = results.stream()
+				.mapToDouble(r -> r.getAccuracy())
+				.average();
+
+		if(!optional.isPresent()) {
+			this.logger.severe("Not able to calculate avg accuracy for benchmark '" + this.result.getId() + "'");
+
+			return;
+		}
+
+		this.result.setAvgAccuracy(optional.orElse(0));
+
+		this.benchmarkResultRepository.save(this.result);
+
 	}
 
 	private void doBenchmark() {
@@ -96,11 +113,12 @@ public class Benchmark extends Thread {
 		this.benchmarkResultRepository.save(this.result);
 
 		this.logger.info("Benchmark ended after " + duration);
-		this.logger.info("====================");
 	}
 
 	private void prepareBenchmark() {
-		this.logger.info("====================");
+		this.logger.info("======================");
+		this.logger.info("= Benchmark  started =");
+		this.logger.info("======================");
 		this.logger.info("Preparing benchmark");
 
 		this.fileLoader.start();
@@ -136,12 +154,20 @@ public class Benchmark extends Thread {
 	private void processBenchmarkResults() {
 		this.logger.info("Processing results");
 
+		long start = System.currentTimeMillis();
+
 		List<ProcessResult> results = this.processResultRepository.findAllByBenchmarkResultId(this.result.getId());
 
-		results.forEach(result -> {
-			this.calculateAccuracy(result);
-		});
+		this.calculateAccuracy(results);
 
+		long end = System.currentTimeMillis();
+
+		String duration = this.durationToString(end - start);
+
+		this.logger.info("Processing results ended after " + duration);
+		this.logger.info("======================");
+		this.logger.info("=  Benchmark  ended  =");
+		this.logger.info("======================");
 	}
 
 	private void startBenchmark() {
