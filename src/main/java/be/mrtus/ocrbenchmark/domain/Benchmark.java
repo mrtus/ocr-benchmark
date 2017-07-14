@@ -20,38 +20,39 @@ public class Benchmark extends Thread {
 	private BenchmarkResultRepository benchmarkResultRepository;
 	@Autowired
 	private BenchmarkConfig config;
-	private long endTime;
 	@Autowired
 	private FileLoader fileLoader;
 	private final Logger logger = Logger.getLogger(Benchmark.class.getName());
 	@Autowired
 	private ProcessResultRepository processResultRepository;
 	private final List<Processor> processors = new ArrayList<>();
-	private BenchmarkResult result;
-	private long startTime;
 
 	@Override
 	public void run() {
-		this.prepareBenchmark();
-
 		this.startBenchmark();
 
-		this.doBenchmark();
+		BenchmarkResult result = new BenchmarkResult();
+
+		this.benchmarkResultRepository.save(result);
+
+		this.prepareBenchmark(result);
+
+		this.doBenchmark(result);
+
+		this.processBenchmarkResults(result);
 
 		this.endBenchmark();
-
-		this.processBenchmarkResults();
 
 		System.exit(0);
 	}
 
-	private void calculateAccuracy(List<ProcessResult> results) {
-		results.forEach(result -> {
+	private void calculateAccuracy(BenchmarkResult result, List<ProcessResult> results) {
+		results.forEach(r -> {
 			double accuracy = 0.0;
 
-			result.setAccuracy(accuracy);
+			r.setAccuracy(accuracy);
 
-			this.processResultRepository.save(result);
+			this.processResultRepository.save(r);
 		});
 
 		OptionalDouble optional = results.stream()
@@ -59,18 +60,22 @@ public class Benchmark extends Thread {
 				.average();
 
 		if(!optional.isPresent()) {
-			this.logger.severe("Not able to calculate avg accuracy for benchmark '" + this.result.getId() + "'");
+			this.logger.severe("Not able to calculate avg accuracy for benchmark '" + result.getId() + "'");
 
 			return;
 		}
 
-		this.result.setAvgAccuracy(optional.orElse(0));
+		result.setAvgAccuracy(optional.orElse(0));
 
-		this.benchmarkResultRepository.save(this.result);
+		this.benchmarkResultRepository.save(result);
 
 	}
 
-	private void doBenchmark() {
+	private void doBenchmark(BenchmarkResult result) {
+		this.logger.info("Starting benchmark");
+
+		long start = System.currentTimeMillis();
+
 		this.processors.forEach(p -> p.start());
 
 		this.processors.forEach(p -> {
@@ -80,6 +85,16 @@ public class Benchmark extends Thread {
 				this.logger.log(Level.SEVERE, null, ex);
 			}
 		});
+
+		long end = System.currentTimeMillis();
+
+		result.setDuration(end - start);
+
+		this.benchmarkResultRepository.save(result);
+
+		String duration = this.durationToString(end - start);
+
+		this.logger.info("Benchmark ended after " + duration);
 	}
 
 	private String durationToString(long time) {
@@ -104,28 +119,15 @@ public class Benchmark extends Thread {
 	}
 
 	private void endBenchmark() {
-		this.endTime = System.currentTimeMillis();
-
-		String duration = this.durationToString(this.endTime - this.startTime);
-
-		this.result.setDuration(this.endTime - this.startTime);
-
-		this.benchmarkResultRepository.save(this.result);
-
-		this.logger.info("Benchmark ended after " + duration);
+		this.logger.info("======================");
+		this.logger.info("=  Benchmark  ended  =");
+		this.logger.info("======================");
 	}
 
-	private void prepareBenchmark() {
-		this.logger.info("======================");
-		this.logger.info("= Benchmark  started =");
-		this.logger.info("======================");
+	private void prepareBenchmark(BenchmarkResult result) {
 		this.logger.info("Preparing benchmark");
 
 		this.fileLoader.start();
-
-		this.result = new BenchmarkResult();
-
-		this.benchmarkResultRepository.save(this.result);
 
 		int size = this.config.getParallelBenchmarks();
 
@@ -136,7 +138,7 @@ public class Benchmark extends Thread {
 							this.config,
 							this.fileLoader,
 							this.processResultRepository,
-							this.result
+							result
 					);
 
 					this.processors.add(processor);
@@ -151,28 +153,25 @@ public class Benchmark extends Thread {
 		}
 	}
 
-	private void processBenchmarkResults() {
+	private void processBenchmarkResults(BenchmarkResult result) {
 		this.logger.info("Processing results");
 
 		long start = System.currentTimeMillis();
 
-		List<ProcessResult> results = this.processResultRepository.findAllByBenchmarkResultId(this.result.getId());
+		List<ProcessResult> results = this.processResultRepository.findAllByBenchmarkResultId(result.getId());
 
-		this.calculateAccuracy(results);
+		this.calculateAccuracy(result, results);
 
 		long end = System.currentTimeMillis();
 
 		String duration = this.durationToString(end - start);
 
 		this.logger.info("Processing results ended after " + duration);
-		this.logger.info("======================");
-		this.logger.info("=  Benchmark  ended  =");
-		this.logger.info("======================");
 	}
 
 	private void startBenchmark() {
-		this.logger.info("Starting benchmark");
-
-		this.startTime = System.currentTimeMillis();
+		this.logger.info("======================");
+		this.logger.info("= Benchmark  started =");
+		this.logger.info("======================");
 	}
 }
