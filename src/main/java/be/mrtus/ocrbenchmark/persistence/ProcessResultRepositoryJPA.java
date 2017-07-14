@@ -30,7 +30,7 @@ public class ProcessResultRepositoryJPA implements ProcessResultRepository {
 
 		Root<ProcessResult> root = criteria.from(ProcessResult.class);
 
-		Predicate where = builder.equal(root.get("config").get("id"), id);
+		Predicate where = builder.equal(root.get("benchmarkResult").get("id"), id);
 
 		criteria.where(where);
 
