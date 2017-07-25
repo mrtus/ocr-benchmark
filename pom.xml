@@ -104,7 +104,7 @@
 	</dependencies>
 	
 	<build>
-		<directory>build\</directory>
+		<directory>build/</directory>
 
 		<resources>
 			<resource>
