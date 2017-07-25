@@ -26,6 +26,7 @@ public class FileLoader extends Thread {
 
 	public FileLoader() {
 		this.setDaemon(true);
+		this.setName("Fileloader");
 	}
 
 	public ArrayBlockingQueue<LoadedFile> getQueue() {
