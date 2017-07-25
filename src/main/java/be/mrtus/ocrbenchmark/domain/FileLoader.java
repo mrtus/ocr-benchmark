@@ -48,7 +48,6 @@ public class FileLoader extends Thread {
 
 		try {
 			Files.walk(path)
-					.parallel()
 					.filter(Files::isRegularFile)
 					.forEach(p -> this.processFile(p));
 		} catch(IOException ex) {
