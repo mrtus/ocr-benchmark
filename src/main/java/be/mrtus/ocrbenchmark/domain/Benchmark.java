@@ -24,6 +24,7 @@ public class Benchmark extends Thread {
 	private BenchmarkConfig config;
 	@Autowired
 	private FileLoader fileLoader;
+	@Autowired
 	private OCRLibraryFactory libraryFactory;
 	private final Logger logger = Logger.getLogger(Benchmark.class.getName());
 	@Autowired
@@ -73,7 +74,6 @@ public class Benchmark extends Thread {
 		result.setAvgAccuracy(optional.orElse(0));
 
 		this.benchmarkResultRepository.save(result);
-
 	}
 
 	private void doBenchmark(BenchmarkResult result) {
