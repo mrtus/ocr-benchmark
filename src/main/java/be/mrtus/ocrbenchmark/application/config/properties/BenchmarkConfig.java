@@ -7,10 +7,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("benchmark")
 public class BenchmarkConfig {
 
+	@NotNull
+	private String library;
 	@Min(1)
 	private int parallelBenchmarks;
 	@NotNull
 	private String processorUrl;
+
+	public String getLibrary() {
+		return this.library;
+	}
 
 	public int getParallelBenchmarks() {
 		return this.parallelBenchmarks;
@@ -20,11 +26,15 @@ public class BenchmarkConfig {
 		return this.processorUrl;
 	}
 
-	public void setProcessorUrl(String processorUrl) {
-		this.processorUrl = processorUrl;
+	public void setLibrary(String library) {
+		this.library = library;
 	}
 
 	public void setParallelBenchmarks(int parallelBenchmarks) {
 		this.parallelBenchmarks = parallelBenchmarks;
+	}
+
+	public void setProcessorUrl(String processorUrl) {
+		this.processorUrl = processorUrl;
 	}
 }
