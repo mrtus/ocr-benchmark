@@ -215,8 +215,8 @@
 									<directory>src/main/resources/</directory>
 
 									<includes>
-										<include>public/**</include>
-										<include>templates/**</include>
+										<include>tessdata/**</include>
+										<include>images/**</include>
 									</includes>
 								</resource>
 							</resources>
