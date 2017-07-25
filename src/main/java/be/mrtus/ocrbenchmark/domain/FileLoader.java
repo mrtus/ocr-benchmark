@@ -8,6 +8,7 @@ import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
@@ -41,18 +42,15 @@ public class FileLoader extends Thread {
 
 		this.loading = true;
 
-		Path path = new File(this.config.getFileDir()).toPath();
+		Path path = Paths.get(this.config.getFileDir());
 
 		this.logger.info("Processing files in " + path.toString());
 
 		try {
 			Files.walk(path)
 					.parallel()
-					.forEach(p -> {
-						if(Files.isRegularFile(p)) {
-							this.processFile(p);
-						}
-					});
+					.filter(Files::isRegularFile)
+					.forEach(p -> this.processFile(p));
 		} catch(IOException ex) {
 			this.logger.log(Level.SEVERE, null, ex);
 		}
@@ -68,7 +66,7 @@ public class FileLoader extends Thread {
 		Map<String, Charset> charsets = Charset.availableCharsets();
 
 		for(Map.Entry<String, Charset> entry : charsets.entrySet()) {
-			try {			
+			try {
 				return Files.readAllLines(p, entry.getValue())
 						.stream()
 						.collect(Collectors.joining());
@@ -90,7 +88,7 @@ public class FileLoader extends Thread {
 			LoadedFile file = new LoadedFile(p, contents);
 
 			this.logger.fine("File was processed " + p.toString());
-			
+
 			this.queue.put(file);
 		} catch(InterruptedException | IOException ex) {
 			this.logger.log(Level.SEVERE, null, ex);
