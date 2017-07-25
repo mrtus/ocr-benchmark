@@ -1,3 +1,4 @@
 /build/
 src/main/resources/application-credentials-dev.properties
 nbactions.xml
+src/main/resources/images
