@@ -153,7 +153,7 @@ public class Benchmark extends Thread {
 				});
 
 		try {
-			this.logger.info("Sleeping 5000 ms, let other threads spin up");
+			this.logger.info("Waiting 5000 ms for threads to spin up");
 
 			Thread.sleep(5000);
 		} catch(InterruptedException ex) {
