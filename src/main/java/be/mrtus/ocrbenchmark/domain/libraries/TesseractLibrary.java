@@ -2,6 +2,8 @@ package be.mrtus.ocrbenchmark.domain.libraries;
 
 import be.mrtus.ocrbenchmark.domain.entities.LoadedFile;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.sourceforge.tess4j.ITesseract;
@@ -13,8 +15,13 @@ public class TesseractLibrary implements OCRLibrary {
 	private final Logger logger = Logger.getLogger(TesseractLibrary.class.getName());
 	private final ITesseract tesseract;
 
-	public TesseractLibrary() {
+	public TesseractLibrary(String tessdataPath) {
 		this.tesseract = new Tesseract();
+
+		File baseFolder = new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+		Path tesseractDatapath = Paths.get(baseFolder.getPath() + "/tessdata/");
+
+		this.tesseract.setDatapath(tessdataPath);
 	}
 
 	@Override

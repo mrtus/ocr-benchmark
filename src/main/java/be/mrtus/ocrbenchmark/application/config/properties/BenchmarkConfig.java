@@ -13,6 +13,8 @@ public class BenchmarkConfig {
 	private int parallelBenchmarks;
 	@NotNull
 	private String processorUrl;
+	@NotNull
+	private String tessdataPath;
 
 	public String getLibrary() {
 		return this.library;
@@ -26,6 +28,10 @@ public class BenchmarkConfig {
 		return this.processorUrl;
 	}
 
+	public String getTessdataPath() {
+		return this.tessdataPath;
+	}
+
 	public void setLibrary(String library) {
 		this.library = library;
 	}
@@ -36,5 +42,9 @@ public class BenchmarkConfig {
 
 	public void setProcessorUrl(String processorUrl) {
 		this.processorUrl = processorUrl;
+	}
+
+	public void setTessdataPath(String tessdataPath) {
+		this.tessdataPath = tessdataPath;
 	}
 }
