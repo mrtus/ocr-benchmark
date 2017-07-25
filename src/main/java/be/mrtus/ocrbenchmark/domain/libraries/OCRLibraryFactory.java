@@ -10,6 +10,8 @@ public class OCRLibraryFactory {
 
 	public OCRLibrary build(String library) {
 		switch(library) {
+			case "OCROPUS":
+				return new OCRopusLibrary();
 			case "TESSERACT":
 				String tessdata = this.config.getTessdataPath();
 
