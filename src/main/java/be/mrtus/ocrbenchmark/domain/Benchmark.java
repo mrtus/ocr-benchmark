@@ -3,6 +3,8 @@ package be.mrtus.ocrbenchmark.domain;
 import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
 import be.mrtus.ocrbenchmark.domain.entities.BenchmarkResult;
 import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
+import be.mrtus.ocrbenchmark.domain.libraries.OCRLibrary;
+import be.mrtus.ocrbenchmark.domain.libraries.OCRLibraryFactory;
 import be.mrtus.ocrbenchmark.persistence.BenchmarkResultRepository;
 import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
 import java.time.Duration;
@@ -22,6 +24,7 @@ public class Benchmark extends Thread {
 	private BenchmarkConfig config;
 	@Autowired
 	private FileLoader fileLoader;
+	private OCRLibraryFactory libraryFactory;
 	private final Logger logger = Logger.getLogger(Benchmark.class.getName());
 	@Autowired
 	private ProcessResultRepository processResultRepository;
@@ -131,6 +134,8 @@ public class Benchmark extends Thread {
 
 		int size = this.config.getParallelBenchmarks();
 
+		OCRLibrary library = this.libraryFactory.build(this.config.getLibrary());
+
 		IntStream.range(0, size)
 				.forEach(id -> {
 					Processor processor = new Processor(
@@ -138,14 +143,15 @@ public class Benchmark extends Thread {
 							this.config,
 							this.fileLoader,
 							this.processResultRepository,
-							result
+							result,
+							library
 					);
 
 					this.processors.add(processor);
 				});
 
 		try {
-			this.logger.info("Sleeping 5000 ms");
+			this.logger.info("Sleeping 5000 ms, let other threads spin up");
 
 			Thread.sleep(5000);
 		} catch(InterruptedException ex) {

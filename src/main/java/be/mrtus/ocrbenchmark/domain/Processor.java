@@ -4,6 +4,7 @@ import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
 import be.mrtus.ocrbenchmark.domain.entities.BenchmarkResult;
 import be.mrtus.ocrbenchmark.domain.entities.LoadedFile;
 import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
+import be.mrtus.ocrbenchmark.domain.libraries.OCRLibrary;
 import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +29,7 @@ public class Processor extends Thread {
 	private final BenchmarkConfig config;
 	private final FileLoader fileLoader;
 	private final int id;
+	private final OCRLibrary library;
 	private final Logger logger = Logger.getLogger(Processor.class.getName());
 	private final BenchmarkResult result;
 	private final ProcessResultRepository resultRepository;
@@ -37,13 +39,15 @@ public class Processor extends Thread {
 			BenchmarkConfig config,
 			FileLoader fileLoader,
 			ProcessResultRepository resultRepository,
-			BenchmarkResult result
+			BenchmarkResult result,
+			OCRLibrary library
 	) {
 		this.id = id;
 		this.config = config;
 		this.fileLoader = fileLoader;
 		this.resultRepository = resultRepository;
 		this.result = result;
+		this.library = library;
 
 		this.setDaemon(true);
 		this.setName("Benchmark Processor " + this.id);
@@ -66,7 +70,7 @@ public class Processor extends Thread {
 				break;
 			}
 
-			this.processFile(lf);
+			this.library.doOCR(lf);
 		}
 	}
 
