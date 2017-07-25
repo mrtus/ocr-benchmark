@@ -50,13 +50,15 @@ public class Benchmark extends Thread {
 	}
 
 	private void calculateAccuracy(BenchmarkResult result, List<ProcessResult> results) {
-		results.forEach(r -> {
-			double accuracy = 0.0;
+		results.stream()
+				.parallel()
+				.forEach(r -> {
+					double accuracy = 0.0;
 
-			r.setAccuracy(accuracy);
+					r.setAccuracy(accuracy);
 
-			this.processResultRepository.save(r);
-		});
+					this.processResultRepository.save(r);
+				});
 
 		OptionalDouble optional = results.stream()
 				.mapToDouble(r -> r.getAccuracy())
