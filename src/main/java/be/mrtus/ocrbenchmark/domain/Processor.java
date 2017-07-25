@@ -70,8 +70,27 @@ public class Processor extends Thread {
 				break;
 			}
 
-			this.library.doOCR(lf);
+			this.doOcr(lf);
 		}
+	}
+
+	private void doOcr(LoadedFile lf) {
+		long start = System.currentTimeMillis();
+
+		String result = this.library.doOCR(lf);
+
+		long end = System.currentTimeMillis();
+
+		ProcessResult processResult = new ProcessResult();
+
+		processResult.setBenchmarkResult(this.result);
+		processResult.setPath(lf.getPath());
+		processResult.setResult(result);
+		processResult.setDuration(end - start);
+
+		this.resultRepository.save(processResult);
+
+		this.logger.info("Result for " + lf.getPath() + ": " + result);
 	}
 
 	private void processFile(LoadedFile lf) {
