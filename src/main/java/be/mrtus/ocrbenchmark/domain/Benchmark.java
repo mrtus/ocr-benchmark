@@ -8,6 +8,9 @@ import be.mrtus.ocrbenchmark.persistence.BenchmarkResultRepository;
 import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -27,6 +30,7 @@ public class Benchmark extends Thread {
 	@Autowired
 	private ProcessResultRepository processResultRepository;
 	private final List<Processor> processors = new ArrayList<>();
+	private ExecutorService executorService;
 
 	@Override
 	public void run() {
@@ -52,15 +56,13 @@ public class Benchmark extends Thread {
 
 		long start = System.currentTimeMillis();
 
-		this.processors.forEach(p -> p.start());
+		this.processors.forEach(p -> this.executorService.submit(p));
 
-		this.processors.forEach(p -> {
-			try {
-				p.join();
-			} catch(InterruptedException ex) {
-				this.logger.log(Level.SEVERE, null, ex);
-			}
-		});
+		try {
+			this.executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
+		} catch(InterruptedException ex) {
+			Logger.getLogger(Benchmark.class.getName()).log(Level.SEVERE, null, ex);
+		}
 
 		long end = System.currentTimeMillis();
 
@@ -82,9 +84,11 @@ public class Benchmark extends Thread {
 	private void prepareBenchmark(BenchmarkResult result) {
 		this.logger.info("Preparing benchmark");
 
-		this.fileLoader.start();
-
 		int size = this.config.getParallelBenchmarks();
+
+		this.executorService = Executors.newFixedThreadPool(size + 1);
+
+		this.executorService.submit(this.fileLoader);
 
 		OCRLibrary library = this.libraryFactory.build(this.config.getLibrary());
 
