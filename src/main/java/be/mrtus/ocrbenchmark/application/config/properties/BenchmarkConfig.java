@@ -15,6 +15,16 @@ public class BenchmarkConfig {
 	private String processorUrl;
 	@NotNull
 	private String tessdataPath;
+	@NotNull
+	private String mode;
+
+	public String getMode() {
+		return this.mode;
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
 
 	public String getLibrary() {
 		return this.library;
