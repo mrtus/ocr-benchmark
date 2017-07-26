@@ -97,7 +97,7 @@ public class Benchmark extends Thread {
 
 		this.benchmarkResultRepository.save(result);
 
-		String duration = this.durationToString(end - start);
+		String duration = Util.durationToString(end - start);
 
 		this.logger.info("Benchmark ended after " + duration);
 	}
