@@ -20,12 +20,12 @@ public class FileConverterA extends Thread {
 			Files.readAllLines(path)
 					.forEach(l -> {
 						String[] split = l.split(", ");
-						String fileName = split[0];
-						fileName = fileName.substring(0, fileName.length() - 4);
+						String filename = split[0];
+						filename = filename.substring(0, filename.length() - 4);
 
 						String fileContents = split[1].replaceAll("\"", "");
 
-						Path newFile = output.resolve(fileName + ".txt");
+						Path newFile = output.resolve(filename + ".txt");
 
 						try {
 							Files.createFile(newFile);
