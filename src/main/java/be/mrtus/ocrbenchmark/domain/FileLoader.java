@@ -79,18 +79,17 @@ public class FileLoader extends Thread {
 
 	private void processFile(Path p) {
 		try {
-			String contents = this.loadFileContents(p);
+//			String contents = this.loadFileContents(p);
 
-			if(contents == null) {
-				return;
-			}
-
-			LoadedFile file = new LoadedFile(p, contents);
+//			if(contents == null) {
+//				return;
+//			}
+			LoadedFile file = new LoadedFile(p, "");
 
 			this.logger.fine("File was processed " + p.toString());
 
 			this.queue.put(file);
-		} catch(InterruptedException | IOException ex) {
+		} catch(InterruptedException ex) {
 			this.logger.log(Level.SEVERE, null, ex);
 		}
 	}
