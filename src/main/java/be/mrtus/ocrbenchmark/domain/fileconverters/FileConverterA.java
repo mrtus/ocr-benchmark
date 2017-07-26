@@ -1,6 +1,6 @@
 package be.mrtus.ocrbenchmark.domain.fileconverters;
 
-import be.mrtus.ocrbenchmark.application.config.properties.FileConverterAConfig;
+import be.mrtus.ocrbenchmark.application.config.properties.converters.FileConverterAConfig;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package be.mrtus.ocrbenchmark.application.config.properties;
+package be.mrtus.ocrbenchmark.application.config.properties.converters;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

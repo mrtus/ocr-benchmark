@@ -1,7 +1,7 @@
 package be.mrtus.ocrbenchmark;
 
 import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
-import be.mrtus.ocrbenchmark.application.config.properties.FileConverterConfig;
+import be.mrtus.ocrbenchmark.application.config.properties.converters.FileConverterConfig;
 import be.mrtus.ocrbenchmark.domain.Benchmark;
 import be.mrtus.ocrbenchmark.domain.fileconverters.FileConverterFactory;
 import java.util.logging.Level;

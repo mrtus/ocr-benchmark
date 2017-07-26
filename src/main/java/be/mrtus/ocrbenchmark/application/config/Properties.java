@@ -1,8 +1,8 @@
 package be.mrtus.ocrbenchmark.application.config;
 
 import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
-import be.mrtus.ocrbenchmark.application.config.properties.FileConverterAConfig;
-import be.mrtus.ocrbenchmark.application.config.properties.FileConverterCConfig;
+import be.mrtus.ocrbenchmark.application.config.properties.converters.FileConverterAConfig;
+import be.mrtus.ocrbenchmark.application.config.properties.converters.FileConverterCConfig;
 import be.mrtus.ocrbenchmark.application.config.properties.FileLoaderConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
