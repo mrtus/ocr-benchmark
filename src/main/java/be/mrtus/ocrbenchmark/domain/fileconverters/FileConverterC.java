@@ -45,7 +45,7 @@ public class FileConverterC extends Thread {
 						}
 					});
 		} catch(IOException ex) {
-			log.log(Level.SEVERE, null, ex);
+			this.log.log(Level.SEVERE, null, ex);
 		}
 
 		this.isLoading = false;
@@ -70,14 +70,14 @@ public class FileConverterC extends Thread {
 					}
 				}
 
-				Path p = queue.poll();
+				Path p = this.queue.poll();
 
 				if(p == null) {
 					break;
 				}
 
 				try {
-					System.out.println("Processing file " + count.addAndGet(1) + " : " + p);
+					System.out.println("Processing file " + this.count.addAndGet(1) + " : " + p);
 
 					String filename = p.getFileName().toString();
 					String parentPathName = p.getParent().toString();
@@ -105,7 +105,7 @@ public class FileConverterC extends Thread {
 						Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, e);
 					}
 				} catch(Exception e) {
-					log.log(Level.SEVERE, null, e);
+					this.log.log(Level.SEVERE, null, e);
 				}
 			}
 		};
