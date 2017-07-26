@@ -43,7 +43,7 @@ public class FileLoader extends Thread {
 
 		this.loading = true;
 
-		Path path = Paths.get(this.config.getFileDir());
+		Path path = Paths.get(this.config.getRoot()).resolve(this.config.getImages());
 
 		this.logger.info("Processing files in " + path.toString());
 

@@ -8,23 +8,43 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class FileLoaderConfig {
 
 	@NotNull
-	private String fileDir;
+	private String images;
+	@NotNull
+	private String output;
 	@Min(1)
 	private int queueSize;
+	@NotNull
+	private String root;
 
-	public String getFileDir() {
-		return this.fileDir;
+	public String getImages() {
+		return this.images;
+	}
+
+	public String getOutput() {
+		return this.output;
 	}
 
 	public int getQueueSize() {
 		return this.queueSize;
 	}
 
-	public void setFileDir(String fileDir) {
-		this.fileDir = fileDir;
+	public String getRoot() {
+		return this.root;
+	}
+
+	public void setImages(String images) {
+		this.images = images;
+	}
+
+	public void setOutput(String output) {
+		this.output = output;
 	}
 
 	public void setQueueSize(int queueSize) {
 		this.queueSize = queueSize;
+	}
+
+	public void setRoot(String root) {
+		this.root = root;
 	}
 }
