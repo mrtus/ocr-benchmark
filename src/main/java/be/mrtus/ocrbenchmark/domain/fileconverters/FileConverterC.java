@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,6 +61,56 @@ public class FileConverterC extends Thread {
 		System.out.println("Converting took: " + Util.durationToString(end - start));
 	}
 
+	private Runnable createWorker() {
+		return () -> {
+			while(true) {
+				while(queue.peek() == null) {
+					if(!isLoading) {
+						break;
+					}
+				}
+
+				Path p = queue.poll();
+
+				if(p == null) {
+					break;
+				}
+
+				try {
+					System.out.println("Processing file " + count.addAndGet(1) + " : " + p);
+
+					String filename = p.getFileName().toString();
+					String parentPathName = p.getParent().toString();
+
+					parentPathName = parentPathName.replace(this.config.getImages(), this.config.getOutput());
+
+					String[] split = filename.split("_");
+					String fileContents = split[1];
+
+					Path parentPath = Paths.get(parentPathName);
+
+					filename = filename.substring(0, filename.length() - 4);
+					Path newFile = parentPath.resolve(filename + ".txt");
+
+					try {
+						Files.createDirectories(parentPath);
+						Files.createFile(newFile);
+					} catch(IOException ex) {
+						Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, ex);
+					}
+
+					try(BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()))) {
+						bw.write(fileContents);
+					} catch(Exception e) {
+						Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, e);
+					}
+				} catch(Exception e) {
+					log.log(Level.SEVERE, null, e);
+				}
+			}
+		};
+	}
+
 	private void setupWorkers() {
 		int threads = this.config.getThreads();
 
@@ -71,55 +118,6 @@ public class FileConverterC extends Thread {
 		this.executorService = Executors.newFixedThreadPool(threads);
 
 		IntStream.range(0, threads)
-				.forEach(i -> this.executorService.submit(() -> {
-					FileConverterC c = FileConverterC.this;
-
-					while(true) {
-						while(queue.peek() == null) {
-							if(!isLoading) {
-								break;
-							}
-						}
-
-						Path p = queue.poll();
-
-						if(p == null) {
-							break;
-						}
-
-						try {
-							System.out.println("Processing file " + count.addAndGet(1) + " : " + p);
-
-							String filename = p.getFileName().toString();
-							String parentPathName = p.getParent().toString();
-
-							parentPathName = parentPathName.replace(this.config.getImages(), this.config.getOutput());
-
-							String[] split = filename.split("_");
-							String fileContents = split[1];
-
-							Path parentPath = Paths.get(parentPathName);
-
-							filename = filename.substring(0, filename.length() - 4);
-							Path newFile = parentPath.resolve(filename + ".txt");
-
-							try {
-								Files.createDirectories(parentPath);
-								Files.createFile(newFile);
-							} catch(IOException ex) {
-								Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, ex);
-							}
-
-							try(BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()))) {
-								bw.write(fileContents);
-							} catch(Exception e) {
-								Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, e);
-							}
-						} catch(Exception e) {
-							log.log(Level.SEVERE, null, e);
-							System.exit(0);
-						}
-					}
-				}));
+				.forEach(i -> this.executorService.submit(() -> this.createWorker()));
 	}
 }
