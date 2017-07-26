@@ -1,5 +1,6 @@
 package be.mrtus.ocrbenchmark.domain.fileconverters;
 
+import be.mrtus.ocrbenchmark.application.config.properties.FileConverterCConfig;
 import be.mrtus.ocrbenchmark.domain.Util;
 import be.mrtus.ocrbenchmark.persistence.AnnotationRepository;
 import java.io.BufferedWriter;
@@ -8,9 +9,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,76 +23,76 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class FileConverterC extends Thread {
 
 	@Autowired
-	private AnnotationRepository annotationRepository;
-	private AtomicInteger count = new AtomicInteger();
+	private FileConverterCConfig config;
+	private final AtomicInteger count = new AtomicInteger();
+	private ExecutorService executorService;
 	private volatile boolean isLoading = true;
 	private final Logger log = Logger.getLogger(FileConverterA.class.getName());
 	private final ArrayBlockingQueue<Path> queue = new ArrayBlockingQueue<>(1000);
-	private List<Thread> workers = new ArrayList<>();
 
 	@PostConstruct
 	public void init() {
-		IntStream.range(0, 8)
-				.forEach(i -> {
-					Thread thread = new Thread(() -> {
-						FileConverterC c = FileConverterC.this;
+		int threads = this.config.getThreads();
 
-						while(true) {
-							while(queue.peek() == null) {
-								if(!isLoading) {
-									break;
-								}
-							}
+		this.executorService = Executors.newFixedThreadPool(threads);
 
-							Path p = queue.poll();
+		IntStream.range(0, threads)
+				.forEach(i -> this.executorService.submit(() -> {
+					FileConverterC c = FileConverterC.this;
 
-							if(p == null) {
+					while(true) {
+						while(queue.peek() == null) {
+							if(!isLoading) {
 								break;
 							}
+						}
 
-							try {
-								System.out.println("Processing file " + count.addAndGet(1) + " : " + p);
+						Path p = queue.poll();
 
-								String filename = p.getFileName().toString();
-								String parentPathName = p.getParent().toString();
+						if(p == null) {
+							break;
+						}
 
-								parentPathName = parentPathName.replace("images3", "output3");
+						try {
+							System.out.println("Processing file " + count.addAndGet(1) + " : " + p);
 
-								String[] split = filename.split("_");
-								String fileContents = split[1];
+							String filename = p.getFileName().toString();
+							String parentPathName = p.getParent().toString();
 
-								Path parentPath = Paths.get(parentPathName);
+							parentPathName = parentPathName.replace(this.config.getImages(), this.config.getOutput());
 
-								filename = filename.substring(0, filename.length() - 4);
-								Path newFile = parentPath.resolve(filename + ".txt");
+							String[] split = filename.split("_");
+							String fileContents = split[1];
+
+							Path parentPath = Paths.get(parentPathName);
+
+							filename = filename.substring(0, filename.length() - 4);
+							Path newFile = parentPath.resolve(filename + ".txt");
 
 								//this.annotationRepository.save(new Annotation(filename, fileContents));
-								try {
-									Files.createDirectories(parentPath);
-									Files.createFile(newFile);
-								} catch(IOException ex) {
-									Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, ex);
-								}
-
-								try(BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()))) {
-									bw.write(fileContents);
-								} catch(Exception e) {
-									Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, e);
-								}
-							} catch(Exception e) {
-								log.log(Level.SEVERE, null, e);
-								System.exit(0);
+							try {
+								Files.createDirectories(parentPath);
+								Files.createFile(newFile);
+							} catch(IOException ex) {
+								Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, ex);
 							}
-						}
-					});
 
-					thread.start();
-				});
+							try(BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()))) {
+								bw.write(fileContents);
+							} catch(Exception e) {
+								Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, e);
+							}
+						} catch(Exception e) {
+							log.log(Level.SEVERE, null, e);
+							System.exit(0);
+						}
+					}
+				}));
 	}
 
 	@Override
 	public void run() {
-		Path path = Paths.get("h:/images3");
+		Path path = Paths.get(this.config.getRoot()).resolve(this.config.getImages());
 
 		long start = System.currentTimeMillis();
 
@@ -111,15 +113,13 @@ public class FileConverterC extends Thread {
 
 		this.isLoading = false;
 
-		long end = System.currentTimeMillis();
+		try {
+			this.executorService.awaitTermination(7, TimeUnit.DAYS);
+		} catch(InterruptedException ex) {
+			Logger.getLogger(FileConverterC.class.getName()).log(Level.SEVERE, null, ex);
+		}
 
-		this.workers.forEach(t -> {
-			try {
-				t.join();
-			} catch(InterruptedException ex) {
-				Logger.getLogger(FileConverterC.class.getName()).log(Level.SEVERE, null, ex);
-			}
-		});
+		long end = System.currentTimeMillis();
 
 		System.out.println("Converting took: " + Util.durationToString(end - start));
 	}
