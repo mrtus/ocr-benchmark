@@ -35,6 +35,12 @@ public class Application extends Thread {
 	public void run() {
 		if(this.config.getMode().equalsIgnoreCase("BENCHMARK")) {
 			this.benchmark.start();
+
+			try {
+				this.benchmark.join();
+			} catch(InterruptedException ex) {
+				Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+			}
 		} else if(this.config.getMode().equalsIgnoreCase("CONVERT")) {
 			Thread thread = this.factory.create(this.fileConverterConfig.getType());
 
@@ -46,5 +52,7 @@ public class Application extends Thread {
 				Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
+
+		System.exit(0);
 	}
 }

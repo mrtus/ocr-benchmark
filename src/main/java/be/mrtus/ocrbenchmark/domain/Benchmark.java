@@ -47,8 +47,6 @@ public class Benchmark extends Thread {
 		this.processBenchmarkResults(result);
 
 		this.endBenchmark();
-
-		System.exit(0);
 	}
 
 	private void doBenchmark(BenchmarkResult result) {
