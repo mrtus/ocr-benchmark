@@ -3,13 +3,11 @@ package be.mrtus.ocrbenchmark.domain;
 import be.mrtus.ocrbenchmark.application.config.properties.FileLoaderConfig;
 import be.mrtus.ocrbenchmark.domain.entities.LoadedFile;
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,31 +58,39 @@ public class FileLoader extends Thread {
 		this.logger.info("All files were processed in " + path.toString());
 	}
 
-	private String loadFileContents(Path p) throws IOException {
+	private String loadFileContents(Path p) {
 		this.logger.finer("Loading file contents for " + p.toString());
 
-		Map<String, Charset> charsets = Charset.availableCharsets();
-
-		for(Map.Entry<String, Charset> entry : charsets.entrySet()) {
-			try {
-				return Files.readAllLines(p, entry.getValue())
-						.stream()
-						.collect(Collectors.joining());
-			} catch(MalformedInputException | UnmappableCharacterException e) {
-			}
+		try {
+			return Files.readAllLines(p)
+					.stream()
+					.collect(Collectors.joining());
+		} catch(MalformedInputException | UnmappableCharacterException e) {
+			this.logger.log(Level.SEVERE, null, e);
+		} catch(IOException e) {
+			this.logger.log(Level.SEVERE, null, e);
 		}
 
 		return null;
 	}
 
+	private String loadTarget(Path p) {
+		String path = p.getParent().toString();
+		String filename = p.getFileName().toString();
+		filename = filename.substring(0, filename.length() - 4);
+
+		String outputDirectory = path.replace(this.config.getImages(), this.config.getOutput());
+
+		Path outputPath = Paths.get(outputDirectory).resolve(filename + ".txt");
+
+		return this.loadFileContents(outputPath);
+	}
+
 	private void processFile(Path p) {
 		try {
-//			String contents = this.loadFileContents(p);
+			String target = this.loadTarget(p);
 
-//			if(contents == null) {
-//				return;
-//			}
-			LoadedFile file = new LoadedFile(p, "");
+			LoadedFile file = new LoadedFile(p, target);
 
 			this.logger.fine("File was processed " + p.toString());
 
