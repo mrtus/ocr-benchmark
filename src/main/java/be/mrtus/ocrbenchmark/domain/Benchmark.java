@@ -2,15 +2,12 @@ package be.mrtus.ocrbenchmark.domain;
 
 import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
 import be.mrtus.ocrbenchmark.domain.entities.BenchmarkResult;
-import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
 import be.mrtus.ocrbenchmark.domain.libraries.OCRLibrary;
 import be.mrtus.ocrbenchmark.domain.libraries.OCRLibraryFactory;
 import be.mrtus.ocrbenchmark.persistence.BenchmarkResultRepository;
 import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalDouble;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -74,27 +71,6 @@ public class Benchmark extends Thread {
 		String duration = Util.durationToString(end - start);
 
 		this.logger.info("Benchmark ended after " + duration);
-	}
-
-	private String durationToString(long time) {
-		Duration duration = Duration.ofMillis(time);
-
-		long hours = duration.toHours();
-
-		Duration minutesDuration = duration.minusHours(hours);
-		long minutes = minutesDuration.toMinutes();
-
-		Duration secondsDuration = minutesDuration.minusMinutes(minutes);
-		long seconds = secondsDuration.getSeconds();
-
-		Duration milliesDuratoin = secondsDuration.minusSeconds(seconds);
-		long millies = milliesDuratoin.toMillis();
-
-		String durationString = hours + "h "
-								+ minutes + "m "
-								+ seconds + "." + millies + "s ";
-
-		return durationString;
 	}
 
 	private void endBenchmark() {
