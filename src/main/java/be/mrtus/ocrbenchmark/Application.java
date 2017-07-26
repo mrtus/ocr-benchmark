@@ -12,7 +12,7 @@ public class Application {
 		ApplicationContext context = SpringApplication.run(Application.class, args);
 
 		Benchmark benchmark = context.getBean(Benchmark.class);
-		
+
 		benchmark.start();
 	}
 }
