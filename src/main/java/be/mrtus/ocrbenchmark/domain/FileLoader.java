@@ -80,7 +80,7 @@ public class FileLoader extends Thread {
 		filename = filename.substring(0, filename.length() - 4);
 
 		String outputDirectory = path.replace(this.config.getImages(), this.config.getOutput());
-
+		
 		Path outputPath = Paths.get(outputDirectory).resolve(filename + ".txt");
 
 		return this.loadFileContents(outputPath);
