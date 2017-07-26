@@ -13,7 +13,7 @@ public class FileConverterB extends Thread {
 
 	@Override
 	public void run() {
-		Path path = Paths.get("x:/Challenge1_Training_Task1_GT.txt");
+		Path path = Paths.get("x:/Challenge1_Training_Task1_GT");
 		Path output = Paths.get("x:/output2");
 
 		try {
