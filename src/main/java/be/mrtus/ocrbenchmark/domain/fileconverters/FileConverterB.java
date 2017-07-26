@@ -13,7 +13,7 @@ public class FileConverterB extends Thread {
 
 	@Override
 	public void run() {
-		Path path = Paths.get("x:/Challenge1_Training_Task1_GT");
+		Path path = Paths.get("x:/Challenge1_Training_Task1_GT.txt");
 		Path output = Paths.get("x:/output2");
 
 		try {
@@ -21,12 +21,12 @@ public class FileConverterB extends Thread {
 					.filter(Files::isRegularFile)
 					.forEach(p -> {
 						Path filename = p.getFileName();
-						Path newPath = output.resolve(filename);
+						Path newFile = output.resolve(filename);
 
 						try {
-							Files.createFile(newPath);
+							Files.createFile(newFile);
 
-							BufferedWriter bw = new BufferedWriter(new FileWriter(newPath.toFile()));
+							BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()));
 
 							StringBuilder fileContents = new StringBuilder();
 
@@ -41,6 +41,8 @@ public class FileConverterB extends Thread {
 
 							bw.write(fileContents.toString());
 							bw.flush();
+
+							bw.close();
 						} catch(IOException ex) {
 							Logger.getLogger(FileConverterB.class.getName()).log(Level.SEVERE, null, ex);
 						}

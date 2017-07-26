@@ -25,15 +25,15 @@ public class FileConverterA extends Thread {
 
 						String fileContents = split[1].replaceAll("\"", "");
 
-						Path newPath = output.resolve(fileName + ".txt");
+						Path newFile = output.resolve(fileName + ".txt");
 
 						try {
-							Files.createFile(newPath);
+							Files.createFile(newFile);
 						} catch(IOException ex) {
 							Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, ex);
 						}
 
-						try(BufferedWriter bw = new BufferedWriter(new FileWriter(newPath.toFile()))) {
+						try(BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()))) {
 							bw.write(fileContents);
 						} catch(Exception e) {
 							Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, e);
