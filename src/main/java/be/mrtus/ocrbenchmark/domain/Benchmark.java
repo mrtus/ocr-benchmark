@@ -90,10 +90,10 @@ public class Benchmark extends Thread {
 
 		this.executorService.submit(this.fileLoader);
 
-		OCRLibrary library = this.libraryFactory.build(this.config.getLibrary());
-
 		IntStream.range(0, size)
 				.forEach(id -> {
+					OCRLibrary library = this.libraryFactory.build(this.config.getLibrary());
+
 					Processor processor = new Processor(
 							id,
 							this.config,

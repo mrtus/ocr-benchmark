@@ -9,33 +9,23 @@ public class BenchmarkConfig {
 
 	@NotNull
 	private String library;
+	@NotNull
+	private String mode;
 	@Min(1)
 	private int parallelBenchmarks;
 	@NotNull
-	private String processorUrl;
-	@NotNull
 	private String tessdataPath;
-	@NotNull
-	private String mode;
-
-	public String getMode() {
-		return this.mode;
-	}
-
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
 
 	public String getLibrary() {
 		return this.library;
 	}
 
-	public int getParallelBenchmarks() {
-		return this.parallelBenchmarks;
+	public String getMode() {
+		return this.mode;
 	}
 
-	public String getProcessorUrl() {
-		return this.processorUrl;
+	public int getParallelBenchmarks() {
+		return this.parallelBenchmarks;
 	}
 
 	public String getTessdataPath() {
@@ -46,12 +36,12 @@ public class BenchmarkConfig {
 		this.library = library;
 	}
 
-	public void setParallelBenchmarks(int parallelBenchmarks) {
-		this.parallelBenchmarks = parallelBenchmarks;
+	public void setMode(String mode) {
+		this.mode = mode;
 	}
 
-	public void setProcessorUrl(String processorUrl) {
-		this.processorUrl = processorUrl;
+	public void setParallelBenchmarks(int parallelBenchmarks) {
+		this.parallelBenchmarks = parallelBenchmarks;
 	}
 
 	public void setTessdataPath(String tessdataPath) {
