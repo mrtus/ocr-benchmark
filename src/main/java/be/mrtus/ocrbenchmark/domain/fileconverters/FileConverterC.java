@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class FileConverterC extends Thread {
@@ -29,8 +28,43 @@ public class FileConverterC extends Thread {
 	private final Logger log = Logger.getLogger(FileConverterA.class.getName());
 	private ArrayBlockingQueue<Path> queue;
 
-	@PostConstruct
-	public void init() {
+	@Override
+	public void run() {
+		this.setupWorkers();
+
+		Path path = Paths.get(this.config.getRoot()).resolve(this.config.getImages());
+
+		long start = System.currentTimeMillis();
+
+		try {
+			Files.walk(path)
+					.parallel()
+					.filter(Files::isRegularFile)
+					.forEach(p -> {
+						try {
+							this.queue.put(p);
+						} catch(InterruptedException ex) {
+							Logger.getLogger(FileConverterC.class.getName()).log(Level.SEVERE, null, ex);
+						}
+					});
+		} catch(IOException ex) {
+			log.log(Level.SEVERE, null, ex);
+		}
+
+		this.isLoading = false;
+
+		try {
+			this.executorService.awaitTermination(7, TimeUnit.DAYS);
+		} catch(InterruptedException ex) {
+			Logger.getLogger(FileConverterC.class.getName()).log(Level.SEVERE, null, ex);
+		}
+
+		long end = System.currentTimeMillis();
+
+		System.out.println("Converting took: " + Util.durationToString(end - start));
+	}
+
+	private void setupWorkers() {
 		int threads = this.config.getThreads();
 
 		this.queue = new ArrayBlockingQueue<>(this.config.getQueueSize());
@@ -87,39 +121,5 @@ public class FileConverterC extends Thread {
 						}
 					}
 				}));
-	}
-
-	@Override
-	public void run() {
-		Path path = Paths.get(this.config.getRoot()).resolve(this.config.getImages());
-
-		long start = System.currentTimeMillis();
-
-		try {
-			Files.walk(path)
-					.parallel()
-					.filter(Files::isRegularFile)
-					.forEach(p -> {
-						try {
-							this.queue.put(p);
-						} catch(InterruptedException ex) {
-							Logger.getLogger(FileConverterC.class.getName()).log(Level.SEVERE, null, ex);
-						}
-					});
-		} catch(IOException ex) {
-			log.log(Level.SEVERE, null, ex);
-		}
-
-		this.isLoading = false;
-
-		try {
-			this.executorService.awaitTermination(7, TimeUnit.DAYS);
-		} catch(InterruptedException ex) {
-			Logger.getLogger(FileConverterC.class.getName()).log(Level.SEVERE, null, ex);
-		}
-
-		long end = System.currentTimeMillis();
-
-		System.out.println("Converting took: " + Util.durationToString(end - start));
 	}
 }
