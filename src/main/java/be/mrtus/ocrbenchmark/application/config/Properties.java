@@ -1,9 +1,10 @@
 package be.mrtus.ocrbenchmark.application.config;
 
 import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
+import be.mrtus.ocrbenchmark.application.config.properties.FileLoaderConfig;
 import be.mrtus.ocrbenchmark.application.config.properties.converters.FileConverterAConfig;
 import be.mrtus.ocrbenchmark.application.config.properties.converters.FileConverterCConfig;
-import be.mrtus.ocrbenchmark.application.config.properties.FileLoaderConfig;
+import be.mrtus.ocrbenchmark.application.config.properties.converters.FileConverterConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,6 +24,11 @@ public class Properties {
 	@Bean
 	public FileConverterCConfig fileConverterCConfig() {
 		return new FileConverterCConfig();
+	}
+
+	@Bean
+	public FileConverterConfig fileConverterConfig() {
+		return new FileConverterConfig();
 	}
 
 	@Bean

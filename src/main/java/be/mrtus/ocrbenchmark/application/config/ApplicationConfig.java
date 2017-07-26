@@ -4,6 +4,7 @@ import be.mrtus.ocrbenchmark.domain.Benchmark;
 import be.mrtus.ocrbenchmark.domain.FileLoader;
 import be.mrtus.ocrbenchmark.domain.fileconverters.FileConverterA;
 import be.mrtus.ocrbenchmark.domain.fileconverters.FileConverterC;
+import be.mrtus.ocrbenchmark.domain.fileconverters.FileConverterFactory;
 import be.mrtus.ocrbenchmark.domain.libraries.OCRLibraryFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,5 +35,10 @@ public class ApplicationConfig {
 	@Bean
 	public OCRLibraryFactory libraryFactory() {
 		return new OCRLibraryFactory();
+	}
+
+	@Bean
+	public FileConverterFactory fileConverterFactory() {
+		return new FileConverterFactory();
 	}
 }
