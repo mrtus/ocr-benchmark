@@ -6,23 +6,8 @@ import be.mrtus.ocrbenchmark.domain.entities.LoadedFile;
 import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
 import be.mrtus.ocrbenchmark.domain.libraries.OCRLibrary;
 import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
 
 public class Processor extends Thread {
 
@@ -91,77 +76,5 @@ public class Processor extends Thread {
 		this.resultRepository.save(processResult);
 
 		this.logger.info("Result for " + lf.getPath() + ": " + result);
-	}
-
-	private void processFile(LoadedFile lf) {
-		this.logger.info("Processing file " + lf.getPath().toString());
-
-		try {
-			HttpClientBuilder httpBuilder = HttpClientBuilder.create();
-			RequestBuilder requestBuilder = RequestBuilder.post();
-
-			URL url = new URL(this.config.getProcessorUrl());
-
-			requestBuilder.setUri(url.toURI());
-
-			HttpEntity requestEntity = new StringEntity(lf.getFileContents());
-			requestBuilder.setEntity(requestEntity);
-
-			HttpClient httpClient = httpBuilder.build();
-			HttpUriRequest httpRequest = requestBuilder.build();
-
-			long start = System.currentTimeMillis();
-
-			HttpResponse response = httpClient.execute(httpRequest);
-
-			long end = System.currentTimeMillis();
-
-			String responseResult = this.processResponse(response);
-
-			ProcessResult processResult = new ProcessResult();
-
-			processResult.setBenchmarkResult(this.result);
-			processResult.setPath(lf.getPath());
-			processResult.setResult(responseResult);
-			processResult.setDuration(end - start);
-
-			this.resultRepository.save(processResult);
-		} catch(MalformedURLException | URISyntaxException ex) {
-			this.logger.log(Level.SEVERE, null, ex);
-		} catch(IOException ex) {
-			this.logger.log(Level.SEVERE, null, ex);
-		}
-	}
-
-	private String processResponse(HttpResponse response) {
-		InputStream inputStream = null;
-		try {
-			HttpEntity body = response.getEntity();
-
-			inputStream = body.getContent();
-
-			BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-
-			String responseResult = "";
-
-			String line = "";
-
-			while((line = br.readLine()) != null) {
-				responseResult += line;
-			}
-
-			return responseResult;
-		} catch(MalformedURLException ex) {
-			this.logger.log(Level.SEVERE, null, ex);
-		} catch(IOException ex) {
-			this.logger.log(Level.SEVERE, null, ex);
-		} finally {
-			try {
-				inputStream.close();
-			} catch(IOException ex) {
-				this.logger.log(Level.SEVERE, null, ex);
-			}
-		}
-		return null;
 	}
 }
