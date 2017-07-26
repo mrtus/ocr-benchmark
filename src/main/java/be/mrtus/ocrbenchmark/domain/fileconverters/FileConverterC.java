@@ -51,7 +51,7 @@ public class FileConverterC extends Thread {
 		this.isLoading = false;
 
 		try {
-			this.executorService.awaitTermination(7, TimeUnit.DAYS);
+			this.executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
 		} catch(InterruptedException ex) {
 			Logger.getLogger(FileConverterC.class.getName()).log(Level.SEVERE, null, ex);
 		}
