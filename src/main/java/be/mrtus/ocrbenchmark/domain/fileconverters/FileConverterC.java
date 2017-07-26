@@ -2,7 +2,6 @@ package be.mrtus.ocrbenchmark.domain.fileconverters;
 
 import be.mrtus.ocrbenchmark.application.config.properties.FileConverterCConfig;
 import be.mrtus.ocrbenchmark.domain.Util;
-import be.mrtus.ocrbenchmark.persistence.AnnotationRepository;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -69,7 +68,6 @@ public class FileConverterC extends Thread {
 							filename = filename.substring(0, filename.length() - 4);
 							Path newFile = parentPath.resolve(filename + ".txt");
 
-								//this.annotationRepository.save(new Annotation(filename, fileContents));
 							try {
 								Files.createDirectories(parentPath);
 								Files.createFile(newFile);
