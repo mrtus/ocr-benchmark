@@ -23,7 +23,8 @@ public class Util {
 
 		String durationString = hours + "h "
 								+ minutes + "m "
-								+ seconds + "." + millies + "s ";
+								+ seconds + "s "
+								+ millies + "ms";
 
 		return durationString;
 	}
