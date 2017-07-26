@@ -45,7 +45,7 @@ public class ResultProcessor extends Thread {
 
 						int errors = this.calculateLevenshteinDistance(target, r.getResult());
 
-						result.setErrors(errors);
+						r.setErrors(errors);
 
 						this.processResultRepository.save(r);
 					});

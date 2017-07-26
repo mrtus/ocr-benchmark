@@ -15,6 +15,7 @@ public class ProcessResult implements Serializable {
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = false)
 	private BenchmarkResult benchmarkResult;
 	private long duration;
+	private int errors;
 	@Id
 	@Convert(converter = UUIDConverter.class)
 	private UUID id;
@@ -36,6 +37,10 @@ public class ProcessResult implements Serializable {
 
 	public long getDuration() {
 		return this.duration;
+	}
+
+	public int getErrors() {
+		return this.errors;
 	}
 
 	public UUID getId() {
@@ -60,6 +65,10 @@ public class ProcessResult implements Serializable {
 
 	public void setDuration(long duration) {
 		this.duration = duration;
+	}
+
+	public void setErrors(int errors) {
+		this.errors = errors;
 	}
 
 	public void setPath(Path path) {
