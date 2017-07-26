@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface ProcessResultRepository {
 
-	public void save(ProcessResult processResult);
+	public List<ProcessResult> findAllByBenchmarkResultId(UUID id, int offset, int size);
 
-	public List<ProcessResult> findAllByBenchmarkResultId(UUID id);
+	public void save(ProcessResult processResult);
 }

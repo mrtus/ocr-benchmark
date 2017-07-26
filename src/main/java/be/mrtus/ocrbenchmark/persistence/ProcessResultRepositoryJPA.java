@@ -23,7 +23,7 @@ public class ProcessResultRepositoryJPA implements ProcessResultRepository {
 	}
 
 	@Override
-	public List<ProcessResult> findAllByBenchmarkResultId(UUID id) {
+	public List<ProcessResult> findAllByBenchmarkResultId(UUID id, int offset, int size) {
 		CriteriaBuilder builder = this.entityManager.getCriteriaBuilder();
 
 		CriteriaQuery<ProcessResult> criteria = builder.createQuery(ProcessResult.class);
@@ -34,6 +34,9 @@ public class ProcessResultRepositoryJPA implements ProcessResultRepository {
 
 		criteria.where(where);
 
-		return this.entityManager.createQuery(criteria).getResultList();
+		return this.entityManager.createQuery(criteria)
+				.setFirstResult(offset)
+				.setMaxResults(size)
+				.getResultList();
 	}
 }

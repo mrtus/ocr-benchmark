@@ -36,7 +36,11 @@ public class ResultProcessor extends Thread {
 
 		List<ProcessResult> results;
 		do {
-			results = this.processResultRepository.findAllByBenchmarkResultId(this.result.getId());
+			results = this.processResultRepository.findAllByBenchmarkResultId(
+					this.result.getId(),
+					offset * size,
+					size
+			);
 
 			results.stream()
 					.parallel()
@@ -49,6 +53,8 @@ public class ResultProcessor extends Thread {
 
 						this.processResultRepository.save(r);
 					});
+
+			offset++;
 		} while(results.size() > 0);
 
 //		double avgAccuracy = this.processResultRepository.findAvgAccuracyForBenchmarkResultId(this.result.getId());
