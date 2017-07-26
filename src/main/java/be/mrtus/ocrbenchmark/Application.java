@@ -4,12 +4,15 @@ import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
 import be.mrtus.ocrbenchmark.application.config.properties.FileConverterConfig;
 import be.mrtus.ocrbenchmark.domain.Benchmark;
 import be.mrtus.ocrbenchmark.domain.fileconverters.FileConverterFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication
-public class Application {
+public class Application extends Thread {
 
 	@Autowired
 	private Benchmark benchmark;
@@ -20,8 +23,16 @@ public class Application {
 	@Autowired
 	private FileConverterConfig fileConverterConfig;
 
-	public Application() throws InterruptedException {
+	public static void main(String[] args) {
+		ApplicationContext context = SpringApplication.run(Application.class, args);
 
+		Application application = context.getBean(Application.class);
+
+		application.start();
+	}
+
+	@Override
+	public void run() {
 		if(this.config.getMode().equalsIgnoreCase("BENCHMARK")) {
 			this.benchmark.start();
 		} else if(this.config.getMode().equalsIgnoreCase("CONVERT")) {
@@ -29,11 +40,11 @@ public class Application {
 
 			thread.start();
 
-			thread.join();
+			try {
+				thread.join();
+			} catch(InterruptedException ex) {
+				Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+			}
 		}
-	}
-
-	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
 	}
 }
