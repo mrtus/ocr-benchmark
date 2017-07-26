@@ -76,6 +76,8 @@ public class Processor extends Thread {
 
 		this.resultRepository.save(processResult);
 
-		this.logger.info("Result for " + lf.getPath() + ": " + result);
+		result = result.replace("\n", "");
+
+		this.logger.info("Processing result took " + (end - start) + "ms result: " + lf.getTarget() + " => " + result);
 	}
 }
