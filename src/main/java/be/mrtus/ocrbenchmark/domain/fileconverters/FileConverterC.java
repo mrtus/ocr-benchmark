@@ -1,8 +1,9 @@
 package be.mrtus.ocrbenchmark.domain.fileconverters;
 
 import be.mrtus.ocrbenchmark.domain.Util;
-import be.mrtus.ocrbenchmark.domain.entities.Annotation;
 import be.mrtus.ocrbenchmark.persistence.AnnotationRepository;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,14 +23,14 @@ public class FileConverterC extends Thread {
 	@Autowired
 	private AnnotationRepository annotationRepository;
 	private AtomicInteger count = new AtomicInteger();
-	private final Logger log = Logger.getLogger(FileConverterA.class.getName());
-	private final ArrayBlockingQueue<Path> queue = new ArrayBlockingQueue<>(100);
-	private List<Thread> workers = new ArrayList<>();
 	private volatile boolean isLoading = true;
+	private final Logger log = Logger.getLogger(FileConverterA.class.getName());
+	private final ArrayBlockingQueue<Path> queue = new ArrayBlockingQueue<>(1000);
+	private List<Thread> workers = new ArrayList<>();
 
 	@PostConstruct
 	public void init() {
-		IntStream.range(0, 16)
+		IntStream.range(0, 8)
 				.forEach(i -> {
 					Thread thread = new Thread(() -> {
 						FileConverterC c = FileConverterC.this;
@@ -48,23 +49,37 @@ public class FileConverterC extends Thread {
 							}
 
 							try {
-								System.out.println("Processing file: " + p);
-
-								long starts = System.currentTimeMillis();
+								System.out.println("Processing file " + count.addAndGet(1) + " : " + p);
 
 								String filename = p.getFileName().toString();
+								String parentPathName = p.getParent().toString();
+
+								parentPathName = parentPathName.replace("images3", "output3");
+
 								String[] split = filename.split("_");
 								String fileContents = split[1];
 
-								this.annotationRepository.save(new Annotation(filename, fileContents));
+								Path parentPath = Paths.get(parentPathName);
 
-								count.addAndGet(1);
+								filename = filename.substring(0, filename.length() - 4);
+								Path newFile = parentPath.resolve(filename + ".txt");
 
-								long ends = System.currentTimeMillis();
+								//this.annotationRepository.save(new Annotation(filename, fileContents));
+								try {
+									Files.createDirectories(parentPath);
+									Files.createFile(newFile);
+								} catch(IOException ex) {
+									Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, ex);
+								}
 
-								System.out.println("Processed the " + count.get() + " file and took " + Util.durationToString(ends - starts));
+								try(BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()))) {
+									bw.write(fileContents);
+								} catch(Exception e) {
+									Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, e);
+								}
 							} catch(Exception e) {
 								log.log(Level.SEVERE, null, e);
+								System.exit(0);
 							}
 						}
 					});
