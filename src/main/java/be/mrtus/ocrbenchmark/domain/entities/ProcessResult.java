@@ -83,4 +83,8 @@ public class ProcessResult implements Serializable {
 	public void setResult(String result) {
 		this.result = result;
 	}
+
+	public void setTarget(String target) {
+		this.target = target;
+	}
 }
