@@ -7,6 +7,7 @@ public class FileConverterCConfig {
 
 	private String images;
 	private String output;
+	private int queueSize;
 	private String root;
 	private int threads;
 
@@ -16,6 +17,10 @@ public class FileConverterCConfig {
 
 	public String getOutput() {
 		return this.output;
+	}
+
+	public int getQueueSize() {
+		return this.queueSize;
 	}
 
 	public String getRoot() {
@@ -32,6 +37,10 @@ public class FileConverterCConfig {
 
 	public void setOutput(String output) {
 		this.output = output;
+	}
+
+	public void setQueueSize(int queueSize) {
+		this.queueSize = queueSize;
 	}
 
 	public void setRoot(String root) {

@@ -27,12 +27,13 @@ public class FileConverterC extends Thread {
 	private ExecutorService executorService;
 	private volatile boolean isLoading = true;
 	private final Logger log = Logger.getLogger(FileConverterA.class.getName());
-	private final ArrayBlockingQueue<Path> queue = new ArrayBlockingQueue<>(1000);
+	private ArrayBlockingQueue<Path> queue;
 
 	@PostConstruct
 	public void init() {
 		int threads = this.config.getThreads();
 
+		this.queue = new ArrayBlockingQueue<>(this.config.getQueueSize());
 		this.executorService = Executors.newFixedThreadPool(threads);
 
 		IntStream.range(0, threads)
