@@ -4,19 +4,19 @@ import java.nio.file.Path;
 
 public class LoadedFile {
 
-	private String fileContents;
 	private Path path;
+	private String target;
 
-	public LoadedFile(Path path, String fileContents) {
+	public LoadedFile(Path path, String target) {
 		this.path = path;
-		this.fileContents = fileContents;
-	}
-
-	public String getFileContents() {
-		return this.fileContents;
+		this.target = target;
 	}
 
 	public Path getPath() {
 		return this.path;
+	}
+
+	public String getTarget() {
+		return this.target;
 	}
 }

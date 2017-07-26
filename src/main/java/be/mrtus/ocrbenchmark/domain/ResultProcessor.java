@@ -41,7 +41,7 @@ public class ResultProcessor extends Thread {
 			results.stream()
 					.parallel()
 					.forEach(r -> {
-						String target = "";
+						String target = r.getTarget();
 
 						int errors = this.calculateLevenshteinDistance(target, r.getResult());
 

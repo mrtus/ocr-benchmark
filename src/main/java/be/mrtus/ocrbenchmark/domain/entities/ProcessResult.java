@@ -22,6 +22,7 @@ public class ProcessResult implements Serializable {
 	@Convert(converter = PathConverter.class)
 	private Path path;
 	private String result;
+	private String target;
 
 	public ProcessResult() {
 		this.id = UUID.randomUUID();
@@ -53,6 +54,10 @@ public class ProcessResult implements Serializable {
 
 	public String getResult() {
 		return this.result;
+	}
+
+	public String getTarget() {
+		return this.target;
 	}
 
 	public void setAccuracy(double accuracy) {

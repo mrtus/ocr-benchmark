@@ -71,6 +71,7 @@ public class Processor extends Thread {
 		processResult.setBenchmarkResult(this.result);
 		processResult.setPath(lf.getPath());
 		processResult.setResult(result);
+		processResult.setTarget(lf.getTarget());
 		processResult.setDuration(end - start);
 
 		this.resultRepository.save(processResult);
