@@ -1,6 +1,6 @@
 package be.mrtus.ocrbenchmark.domain.fileconverters;
 
-import be.mrtus.ocrbenchmark.persistence.AnnotationRepository;
+import be.mrtus.ocrbenchmark.application.config.properties.FileConverterAConfig;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,12 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class FileConverterA extends Thread {
 
 	@Autowired
-	private AnnotationRepository annotationRepository;
+	private FileConverterAConfig config;
 
 	@Override
 	public void run() {
-		Path path = Paths.get("x:/Challenge1_Test_Task3_GT.txt");
-		Path output = Paths.get("x:/output");
+		Path path = Paths.get(this.config.getRoot()).resolve(this.config.getFile());
+		Path output = Paths.get(this.config.getRoot()).resolve(this.config.getOutput());
 
 		try {
 			Files.readAllLines(path)
