@@ -50,32 +50,6 @@ public class Benchmark extends Thread {
 		System.exit(0);
 	}
 
-	private void calculateAccuracy(BenchmarkResult result, List<ProcessResult> results) {
-		results.stream()
-				.parallel()
-				.forEach(r -> {
-					double accuracy = 0.0;
-
-					r.setAccuracy(accuracy);
-
-					this.processResultRepository.save(r);
-				});
-
-		OptionalDouble optional = results.stream()
-				.mapToDouble(r -> r.getAccuracy())
-				.average();
-
-		if(!optional.isPresent()) {
-			this.logger.severe("Not able to calculate avg accuracy for benchmark '" + result.getId() + "'");
-
-			return;
-		}
-
-		result.setAvgAccuracy(optional.orElse(0));
-
-		this.benchmarkResultRepository.save(result);
-	}
-
 	private void doBenchmark(BenchmarkResult result) {
 		this.logger.info("Starting benchmark");
 
@@ -162,22 +136,19 @@ public class Benchmark extends Thread {
 	}
 
 	private void processBenchmarkResults(BenchmarkResult result) {
-		this.logger.info("Processing results");
+		ResultProcessor processor = new ResultProcessor(
+				this.benchmarkResultRepository,
+				this.processResultRepository,
+				result
+		);
 
-		long start = System.currentTimeMillis();
+		processor.start();
 
-		List<ProcessResult> results;
-		do {
-			results = this.processResultRepository.findAllByBenchmarkResultId(result.getId());
-
-			this.calculateAccuracy(result, results);
-		} while(results.size() > 0);
-
-		long end = System.currentTimeMillis();
-
-		String duration = this.durationToString(end - start);
-
-		this.logger.info("Processing results ended after " + duration);
+		try {
+			processor.join();
+		} catch(InterruptedException ex) {
+			Logger.getLogger(Benchmark.class.getName()).log(Level.SEVERE, null, ex);
+		}
 	}
 
 	private void startBenchmark() {
