@@ -2,16 +2,17 @@ package be.mrtus.ocrbenchmark.domain.entities;
 
 import be.mrtus.ocrbenchmark.persistence.convertors.UUIDConverter;
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.UUID;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class BenchmarkResult implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private double avgAccuracy;
+	@Temporal(value = TemporalType.TIMESTAMP)
+	private Calendar createOn;
 	private long duration;
 	@Id
 	@Convert(converter = UUIDConverter.class)
@@ -19,10 +20,15 @@ public class BenchmarkResult implements Serializable {
 
 	public BenchmarkResult() {
 		this.id = UUID.randomUUID();
+		this.createOn = Calendar.getInstance();
 	}
 
 	public double getAvgAccuracy() {
 		return this.avgAccuracy;
+	}
+
+	public Calendar getCreateOn() {
+		return this.createOn;
 	}
 
 	public long getDuration() {
