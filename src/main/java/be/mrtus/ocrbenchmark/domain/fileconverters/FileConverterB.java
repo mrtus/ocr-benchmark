@@ -25,9 +25,11 @@ public class FileConverterB extends Thread {
 
 						try {
 							Files.createFile(newFile);
+						} catch(IOException ex) {
+							Logger.getLogger(FileConverterB.class.getName()).log(Level.SEVERE, null, ex);
+						}
 
-							BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()));
-
+						try(BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()))) {
 							StringBuilder fileContents = new StringBuilder();
 
 							Files.readAllLines(p)
@@ -40,11 +42,8 @@ public class FileConverterB extends Thread {
 							});
 
 							bw.write(fileContents.toString());
-							bw.flush();
-
-							bw.close();
 						} catch(IOException ex) {
-							Logger.getLogger(FileConverterB.class.getName()).log(Level.SEVERE, null, ex);
+
 						}
 					});
 		} catch(IOException ex) {
