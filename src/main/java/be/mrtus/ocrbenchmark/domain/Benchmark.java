@@ -166,9 +166,12 @@ public class Benchmark extends Thread {
 
 		long start = System.currentTimeMillis();
 
-		List<ProcessResult> results = this.processResultRepository.findAllByBenchmarkResultId(result.getId());
+		List<ProcessResult> results;
+		do {
+			results = this.processResultRepository.findAllByBenchmarkResultId(result.getId());
 
-		this.calculateAccuracy(result, results);
+			this.calculateAccuracy(result, results);
+		} while(results.size() > 0);
 
 		long end = System.currentTimeMillis();
 
