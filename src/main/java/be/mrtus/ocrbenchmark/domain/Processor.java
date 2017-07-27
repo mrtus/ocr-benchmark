@@ -76,8 +76,16 @@ public class Processor extends Thread {
 
 		this.resultRepository.save(processResult);
 
+		long end2 = System.currentTimeMillis();
+
 		result = result.replace("\n", "");
 
-		this.logger.info("Processing result took " + (end - start) + "ms result: " + lf.getTarget() + " => " + result);
+		this.logger.info("OCR took "
+						 + (end - start)
+						 + "ms and saving took "
+						 + (end2 - start)
+						 + "result: "
+						 + lf.getTarget()
+						 + " => " + result);
 	}
 }
