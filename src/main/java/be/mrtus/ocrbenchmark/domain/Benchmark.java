@@ -2,12 +2,14 @@ package be.mrtus.ocrbenchmark.domain;
 
 import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
 import be.mrtus.ocrbenchmark.domain.entities.BenchmarkResult;
+import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
 import be.mrtus.ocrbenchmark.domain.libraries.OCRLibrary;
 import be.mrtus.ocrbenchmark.domain.libraries.OCRLibraryFactory;
 import be.mrtus.ocrbenchmark.persistence.BenchmarkResultRepository;
 import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +24,7 @@ public class Benchmark extends Thread {
 	private BenchmarkResultRepository benchmarkResultRepository;
 	@Autowired
 	private BenchmarkConfig config;
+	private volatile boolean done = false;
 	@Autowired
 	private FileLoader fileLoader;
 	@Autowired
@@ -29,8 +32,14 @@ public class Benchmark extends Thread {
 	private final Logger logger = Logger.getLogger(Benchmark.class.getName());
 	@Autowired
 	private ProcessResultRepository processResultRepository;
+	private ExecutorService processorExecutor;
 	private final List<Processor> processors = new ArrayList<>();
-	private ExecutorService executorService;
+	private ArrayBlockingQueue<ProcessResult> queue;
+	private ExecutorService savingExecutor;
+
+	public boolean isDone() {
+		return this.done;
+	}
 
 	@Override
 	public void run() {
@@ -54,12 +63,16 @@ public class Benchmark extends Thread {
 
 		long start = System.currentTimeMillis();
 
-		this.processors.forEach(p -> this.executorService.submit(p));
+		this.processors.forEach(p -> this.processorExecutor.execute(p));
 
 		try {
-			this.executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
+			this.processorExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
+
+			this.done = true;
+
+			this.savingExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
 		} catch(InterruptedException ex) {
-			Logger.getLogger(Benchmark.class.getName()).log(Level.SEVERE, null, ex);
+			this.logger.log(Level.SEVERE, null, ex);
 		}
 
 		long end = System.currentTimeMillis();
@@ -82,11 +95,27 @@ public class Benchmark extends Thread {
 	private void prepareBenchmark(BenchmarkResult result) {
 		this.logger.info("Preparing benchmark");
 
-		int size = this.config.getParallelBenchmarks();
+		int size = this.config.getBenchmarkThreads();
+		this.processorExecutor = Executors.newFixedThreadPool(size);
 
-		this.executorService = Executors.newFixedThreadPool(size + 1);
+		int saveQueue = this.config.getSaveQueueSize();
+		this.queue = new ArrayBlockingQueue<>(saveQueue);
 
-		this.executorService.submit(this.fileLoader);
+		int saveThreads = this.config.getSaveThreads();
+		this.savingExecutor = Executors.newFixedThreadPool(saveThreads + 1);
+
+		this.savingExecutor.execute(this.fileLoader);
+
+		IntStream.range(0, saveThreads)
+				.forEach(i -> {
+					PersistProcessor processor = new PersistProcessor(
+							this,
+							this.processResultRepository,
+							this.queue
+					);
+
+					this.savingExecutor.execute(processor);
+				});
 
 		IntStream.range(0, size)
 				.forEach(id -> {
@@ -97,6 +126,7 @@ public class Benchmark extends Thread {
 							this.config,
 							this.fileLoader,
 							this.processResultRepository,
+							this.queue,
 							result,
 							library
 					);
@@ -120,12 +150,12 @@ public class Benchmark extends Thread {
 				result
 		);
 
-		processor.start();
+		this.savingExecutor.execute(processor);
 
 		try {
-			processor.join();
+			this.savingExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
 		} catch(InterruptedException ex) {
-			Logger.getLogger(Benchmark.class.getName()).log(Level.SEVERE, null, ex);
+			this.logger.log(Level.SEVERE, null, ex);
 		}
 	}
 

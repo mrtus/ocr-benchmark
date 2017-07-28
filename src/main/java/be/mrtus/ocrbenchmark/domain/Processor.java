@@ -7,6 +7,7 @@ import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
 import be.mrtus.ocrbenchmark.domain.libraries.OCRLibrary;
 import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Processor extends Thread {
@@ -16,6 +17,7 @@ public class Processor extends Thread {
 	private final int id;
 	private final OCRLibrary library;
 	private final Logger logger = Logger.getLogger(Processor.class.getName());
+	private final ArrayBlockingQueue<ProcessResult> queue;
 	private final BenchmarkResult result;
 	private final ProcessResultRepository resultRepository;
 
@@ -24,6 +26,7 @@ public class Processor extends Thread {
 			BenchmarkConfig config,
 			FileLoader fileLoader,
 			ProcessResultRepository resultRepository,
+			ArrayBlockingQueue<ProcessResult> queue,
 			BenchmarkResult result,
 			OCRLibrary library
 	) {
@@ -31,6 +34,7 @@ public class Processor extends Thread {
 		this.config = config;
 		this.fileLoader = fileLoader;
 		this.resultRepository = resultRepository;
+		this.queue = queue;
 		this.result = result;
 		this.library = library;
 
@@ -74,18 +78,18 @@ public class Processor extends Thread {
 		processResult.setTarget(lf.getTarget());
 		processResult.setDuration(end - start);
 
-		this.resultRepository.save(processResult);
 
-		long end2 = System.currentTimeMillis();
+
+		try {
+			this.queue.put(processResult);
+		} catch(InterruptedException ex) {
+			Logger.getLogger(Processor.class.getName()).log(Level.SEVERE, null, ex);
+		}
 
 		result = result.replace("\n", "");
 
 		this.logger.info("OCR took "
 						 + (end - start)
-						 + "ms and saving took "
-						 + (end2 - start)
-						 + "result: "
-						 + lf.getTarget()
-						 + " => " + result);
+						 + "ms");
 	}
 }
