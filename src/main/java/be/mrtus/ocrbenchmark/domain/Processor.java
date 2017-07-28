@@ -78,7 +78,9 @@ public class Processor extends Thread {
 		processResult.setTarget(lf.getTarget());
 		processResult.setDuration(end - start);
 
+		int errors = Util.calculateLevenshteinDistance(processResult.getTarget(), processResult.getResult());
 
+		processResult.setErrors(errors);
 
 		try {
 			this.queue.put(processResult);
