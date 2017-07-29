@@ -5,11 +5,13 @@ import be.mrtus.ocrbenchmark.domain.entities.LoadedFile;
 import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
 import be.mrtus.ocrbenchmark.domain.libraries.OCRLibrary;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Processor extends Thread {
 
+	private final AtomicInteger count;
 	private final FileLoader fileLoader;
 	private final int id;
 	private final OCRLibrary library;
@@ -22,13 +24,15 @@ public class Processor extends Thread {
 			FileLoader fileLoader,
 			ArrayBlockingQueue<ProcessResult> queue,
 			BenchmarkResult result,
-			OCRLibrary library
+			OCRLibrary library,
+			AtomicInteger count
 	) {
 		this.id = id;
 		this.fileLoader = fileLoader;
 		this.queue = queue;
 		this.result = result;
 		this.library = library;
+		this.count = count;
 
 		this.setDaemon(true);
 		this.setName("Benchmark Processor " + this.id);
@@ -80,7 +84,8 @@ public class Processor extends Thread {
 			this.logger.log(Level.SEVERE, null, ex);
 		}
 
-		this.logger.info("OCR took "
+		this.logger.info("OCR " + this.count.addAndGet(1)
+						 + " took "
 						 + (end - start)
 						 + "ms");
 	}

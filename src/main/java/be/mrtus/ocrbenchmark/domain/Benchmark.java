@@ -13,6 +13,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -36,6 +37,7 @@ public class Benchmark extends Thread {
 	private final List<Processor> processors = new ArrayList<>();
 	private ArrayBlockingQueue<ProcessResult> queue;
 	private ExecutorService savingExecutor;
+	private final AtomicInteger count = new AtomicInteger();
 
 	public boolean isDone() {
 		return this.done;
@@ -125,7 +127,8 @@ public class Benchmark extends Thread {
 							this.fileLoader,
 							this.queue,
 							result,
-							library
+							library,
+							this.count
 					);
 
 					this.processors.add(processor);
