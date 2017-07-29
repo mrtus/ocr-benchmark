@@ -10,7 +10,7 @@ public class FileConverterFactory {
 	private FileConverterC c;
 
 	public Thread create(String type) {
-		switch(type) {
+		switch(type.toLowerCase()) {
 			case "a":
 				return this.a;
 			case "c":

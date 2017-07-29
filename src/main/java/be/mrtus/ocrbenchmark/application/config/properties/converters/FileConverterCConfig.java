@@ -2,7 +2,7 @@ package be.mrtus.ocrbenchmark.application.config.properties.converters;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("fileconverter.c")
+@ConfigurationProperties("fileConverter.c")
 public class FileConverterCConfig {
 
 	private String images;

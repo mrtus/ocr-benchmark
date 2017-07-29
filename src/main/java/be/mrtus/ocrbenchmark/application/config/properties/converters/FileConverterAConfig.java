@@ -2,7 +2,7 @@ package be.mrtus.ocrbenchmark.application.config.properties.converters;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("fileconverter.a")
+@ConfigurationProperties("fileConverter.a")
 public class FileConverterAConfig {
 
 	private String file;
