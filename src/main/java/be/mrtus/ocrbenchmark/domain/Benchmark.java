@@ -53,8 +53,7 @@ public class Benchmark extends Thread {
 
 		this.doBenchmark(result);
 
-		this.processBenchmarkResults(result);
-
+//		this.processBenchmarkResults(result);
 		this.endBenchmark();
 	}
 
@@ -123,9 +122,7 @@ public class Benchmark extends Thread {
 
 					Processor processor = new Processor(
 							id,
-							this.config,
 							this.fileLoader,
-							this.processResultRepository,
 							this.queue,
 							result,
 							library
@@ -151,7 +148,6 @@ public class Benchmark extends Thread {
 		);
 
 		this.savingExecutor.execute(processor);
-
 		try {
 			this.savingExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
 		} catch(InterruptedException ex) {
