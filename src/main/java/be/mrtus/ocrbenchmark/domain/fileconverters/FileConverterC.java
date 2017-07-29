@@ -2,8 +2,8 @@ package be.mrtus.ocrbenchmark.domain.fileconverters;
 
 import be.mrtus.ocrbenchmark.application.config.properties.converters.FileConverterCConfig;
 import be.mrtus.ocrbenchmark.domain.Util;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import be.mrtus.ocrbenchmark.domain.entities.Annotation;
+import be.mrtus.ocrbenchmark.persistence.AnnotationRepository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,11 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class FileConverterC extends Thread {
 
 	@Autowired
+	private AnnotationRepository annotationRepository;
+	@Autowired
 	private FileConverterCConfig config;
 	private final AtomicInteger count = new AtomicInteger();
 	private ExecutorService executorService;
-	private volatile boolean isLoading = true;
-	private final Logger log = Logger.getLogger(FileConverterA.class.getName());
+	private final Logger log = Logger.getLogger(FileConverterC.class.getName());
 	private ArrayBlockingQueue<Path> queue;
 
 	@Override
@@ -41,14 +42,12 @@ public class FileConverterC extends Thread {
 						try {
 							this.queue.put(p);
 						} catch(InterruptedException ex) {
-							Logger.getLogger(FileConverterC.class.getName()).log(Level.SEVERE, null, ex);
+							this.log.log(Level.SEVERE, null, ex);
 						}
 					});
 		} catch(IOException ex) {
 			this.log.log(Level.SEVERE, null, ex);
 		}
-
-		this.isLoading = false;
 
 		try {
 			this.executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
@@ -64,8 +63,8 @@ public class FileConverterC extends Thread {
 	private Runnable createWorker() {
 		return () -> {
 			while(true) {
-				while(queue.peek() == null) {
-					if(!isLoading) {
+				while(this.queue.peek() == null) {
+					if(this.executorService.isShutdown()) {
 						break;
 					}
 				}
@@ -77,7 +76,7 @@ public class FileConverterC extends Thread {
 				}
 
 				try {
-					System.out.println("Processing file " + this.count.addAndGet(1) + " : " + p);
+					long start = System.currentTimeMillis();
 
 					String filename = p.getFileName().toString();
 					String parentPathName = p.getParent().toString();
@@ -92,18 +91,23 @@ public class FileConverterC extends Thread {
 					filename = filename.substring(0, filename.length() - 4);
 					Path newFile = parentPath.resolve(filename + ".txt");
 
-					try {
-						Files.createDirectories(parentPath);
-						Files.createFile(newFile);
-					} catch(IOException ex) {
-						Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, ex);
-					}
+//					try {
+//						Files.createDirectories(parentPath);
+//						Files.createFile(newFile);
+//					} catch(IOException ex) {
+//						Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, ex);
+//					}
+//
+//					try(BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()))) {
+//						bw.write(fileContents);
+//					} catch(Exception e) {
+//						Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, e);
+//					}
+					this.annotationRepository.save(new Annotation(filename, fileContents));
 
-					try(BufferedWriter bw = new BufferedWriter(new FileWriter(newFile.toFile()))) {
-						bw.write(fileContents);
-					} catch(Exception e) {
-						Logger.getLogger(FileConverterA.class.getName()).log(Level.SEVERE, null, e);
-					}
+					long end = System.currentTimeMillis();
+
+					this.log.info("Processing file " + this.count.addAndGet(1) + " and took " + (end - start) + "ms");
 				} catch(Exception e) {
 					this.log.log(Level.SEVERE, null, e);
 				}
@@ -112,12 +116,11 @@ public class FileConverterC extends Thread {
 	}
 
 	private void setupWorkers() {
-		int threads = this.config.getThreads();
-
 		this.queue = new ArrayBlockingQueue<>(this.config.getQueueSize());
-		this.executorService = Executors.newFixedThreadPool(threads);
 
+		int threads = this.config.getThreads();
+		this.executorService = Executors.newWorkStealingPool();
 		IntStream.range(0, threads)
-				.forEach(i -> this.executorService.submit(() -> this.createWorker()));
+				.forEach(i -> this.executorService.execute(this.createWorker()));
 	}
 }

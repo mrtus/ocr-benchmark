@@ -2,6 +2,7 @@ package be.mrtus.ocrbenchmark.domain;
 
 import be.mrtus.ocrbenchmark.application.config.properties.FileLoaderConfig;
 import be.mrtus.ocrbenchmark.domain.entities.LoadedFile;
+import be.mrtus.ocrbenchmark.persistence.AnnotationRepository;
 import java.io.*;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
@@ -21,6 +22,8 @@ public class FileLoader extends Thread {
 	private volatile boolean loading;
 	private final Logger logger = Logger.getLogger(FileLoader.class.getName());
 	private ArrayBlockingQueue<LoadedFile> queue;
+	@Autowired
+	private AnnotationRepository annotationRepository;
 
 	public FileLoader() {
 		this.setDaemon(true);
@@ -74,16 +77,24 @@ public class FileLoader extends Thread {
 		return null;
 	}
 
-	private String loadTarget(Path p) {
+	private String loadTarget2(Path p) {
 		String path = p.getParent().toString();
 		String filename = p.getFileName().toString();
 		filename = filename.substring(0, filename.length() - 4);
 
 		String outputDirectory = path.replace(this.config.getImages(), this.config.getOutput());
-		
+
 		Path outputPath = Paths.get(outputDirectory).resolve(filename + ".txt");
 
 		return this.loadFileContents(outputPath);
+	}
+
+	private String loadTarget(Path p) {
+		String path = p.getParent().toString();
+		String filename = p.getFileName().toString();
+		filename = filename.substring(0, filename.length() - 4);
+
+		return this.annotationRepository.findByFilename(filename).getWord();
 	}
 
 	private void processFile(Path p) {
