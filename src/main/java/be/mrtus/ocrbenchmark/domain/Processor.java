@@ -13,23 +13,24 @@ public class Processor extends Thread {
 
 	private final AtomicInteger count;
 	private final FileLoader fileLoader;
+	private ArrayBlockingQueue<LoadedFile> fileQueue;
 	private final int id;
 	private final OCRLibrary library;
 	private final Logger logger = Logger.getLogger(Processor.class.getName());
-	private final ArrayBlockingQueue<ProcessResult> queue;
+	private final ArrayBlockingQueue<ProcessResult> saveQueue;
 	private final BenchmarkResult result;
 
 	public Processor(
 			int id,
 			FileLoader fileLoader,
-			ArrayBlockingQueue<ProcessResult> queue,
+			ArrayBlockingQueue<ProcessResult> saveQueue,
 			BenchmarkResult result,
 			OCRLibrary library,
 			AtomicInteger count
 	) {
 		this.id = id;
 		this.fileLoader = fileLoader;
-		this.queue = queue;
+		this.saveQueue = saveQueue;
 		this.result = result;
 		this.library = library;
 		this.count = count;
@@ -40,16 +41,16 @@ public class Processor extends Thread {
 
 	@Override
 	public void run() {
-		ArrayBlockingQueue<LoadedFile> queue = this.fileLoader.getQueue();
+		this.fileQueue = this.fileLoader.getQueue();
 
 		while(true) {
-			while(queue.peek() == null) {
+			while(this.fileQueue.peek() == null) {
 				if(!this.fileLoader.isLoading()) {
 					break;
 				}
 			}
 
-			LoadedFile lf = queue.poll();
+			LoadedFile lf = this.fileQueue.poll();
 
 			if(lf == null) {
 				break;
@@ -79,7 +80,7 @@ public class Processor extends Thread {
 		processResult.setErrors(errors);
 
 		try {
-			this.queue.put(processResult);
+			this.saveQueue.put(processResult);
 		} catch(InterruptedException ex) {
 			this.logger.log(Level.SEVERE, null, ex);
 		}
@@ -87,6 +88,8 @@ public class Processor extends Thread {
 		this.logger.info("OCR " + this.count.addAndGet(1)
 						 + " took "
 						 + (end - start)
-						 + "ms");
+						 + "ms "
+						 + " File queue size: "
+						 + this.fileQueue.size());
 	}
 }

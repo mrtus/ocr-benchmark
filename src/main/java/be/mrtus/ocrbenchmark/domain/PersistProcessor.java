@@ -43,7 +43,7 @@ public class PersistProcessor extends Thread {
 
 			long end = System.currentTimeMillis();
 
-			this.logger.info("Saving result took " + (end - start) + "ms, queue size: " + this.queue.size());
+			this.logger.info("Saving result took " + (end - start) + "ms, Save queue size: " + this.queue.size());
 		}
 	}
 }
