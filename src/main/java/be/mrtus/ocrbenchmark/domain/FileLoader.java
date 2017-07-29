@@ -77,7 +77,7 @@ public class FileLoader extends Thread {
 		return null;
 	}
 
-	private String loadTarget2(Path p) {
+	private String loadTarget(Path p) {
 		String path = p.getParent().toString();
 		String filename = p.getFileName().toString();
 		filename = filename.substring(0, filename.length() - 4);
@@ -89,7 +89,7 @@ public class FileLoader extends Thread {
 		return this.loadFileContents(outputPath);
 	}
 
-	private String loadTarget(Path p) {
+	private String loadTarget2(Path p) {
 		String path = p.getParent().toString();
 		String filename = p.getFileName().toString();
 		filename = filename.substring(0, filename.length() - 4);
