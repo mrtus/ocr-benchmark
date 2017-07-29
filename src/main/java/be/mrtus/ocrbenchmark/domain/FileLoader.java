@@ -90,9 +90,7 @@ public class FileLoader extends Thread {
 	}
 
 	private String loadTarget2(Path p) {
-		String path = p.getParent().toString();
 		String filename = p.getFileName().toString();
-		filename = filename.substring(0, filename.length() - 4);
 
 		return this.annotationRepository.findByFilename(filename).getWord();
 	}
