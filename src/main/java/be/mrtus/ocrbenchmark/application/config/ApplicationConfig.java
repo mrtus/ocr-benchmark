@@ -2,6 +2,7 @@ package be.mrtus.ocrbenchmark.application.config;
 
 import be.mrtus.ocrbenchmark.domain.Benchmark;
 import be.mrtus.ocrbenchmark.domain.FileLoader;
+import be.mrtus.ocrbenchmark.domain.ResultAnalyser;
 import be.mrtus.ocrbenchmark.domain.fileconverters.FileConverterA;
 import be.mrtus.ocrbenchmark.domain.fileconverters.FileConverterC;
 import be.mrtus.ocrbenchmark.domain.fileconverters.FileConverterFactory;
@@ -28,6 +29,11 @@ public class ApplicationConfig {
 	}
 
 	@Bean
+	public FileConverterFactory fileConverterFactory() {
+		return new FileConverterFactory();
+	}
+
+	@Bean
 	public FileLoader fileLoader() {
 		return new FileLoader();
 	}
@@ -38,7 +44,7 @@ public class ApplicationConfig {
 	}
 
 	@Bean
-	public FileConverterFactory fileConverterFactory() {
-		return new FileConverterFactory();
+	public ResultAnalyser resultAnalyser() {
+		return new ResultAnalyser();
 	}
 }
