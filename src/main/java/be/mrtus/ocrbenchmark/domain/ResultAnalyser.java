@@ -5,6 +5,7 @@ import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
 import be.mrtus.ocrbenchmark.persistence.BenchmarkResultRepository;
 import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,7 +24,7 @@ public class ResultAnalyser extends Thread {
 
 		long start = System.currentTimeMillis();
 
-		BenchmarkResult result = this.benchmarkResultRepository.findById();
+		BenchmarkResult result = this.benchmarkResultRepository.findById(UUID.randomUUID());
 
 		int offset = 0;
 		int size = 100;
@@ -39,10 +40,7 @@ public class ResultAnalyser extends Thread {
 			results.stream()
 					.parallel()
 					.forEach(r -> {
-						//int errors = Util.calculateLevenshteinDistance(r.getTarget(), r.getResult());
 
-						//r.setErrors(errors);
-						//this.processResultRepository.save(r);
 					});
 
 			offset++;
