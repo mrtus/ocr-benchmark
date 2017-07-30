@@ -55,7 +55,6 @@ public class Benchmark extends Thread {
 
 		this.doBenchmark(result);
 
-//		this.processBenchmarkResults(result);
 		this.endBenchmark();
 	}
 
@@ -138,21 +137,6 @@ public class Benchmark extends Thread {
 			this.logger.info("Waiting 5000 ms for threads to spin up");
 
 			Thread.sleep(5000);
-		} catch(InterruptedException ex) {
-			this.logger.log(Level.SEVERE, null, ex);
-		}
-	}
-
-	private void processBenchmarkResults(BenchmarkResult result) {
-		ResultProcessor processor = new ResultProcessor(
-				this.benchmarkResultRepository,
-				this.processResultRepository,
-				result
-		);
-
-		this.savingExecutor.execute(processor);
-		try {
-			this.savingExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
 		} catch(InterruptedException ex) {
 			this.logger.log(Level.SEVERE, null, ex);
 		}
