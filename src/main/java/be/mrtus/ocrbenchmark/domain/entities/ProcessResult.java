@@ -15,6 +15,7 @@ public class ProcessResult implements Serializable {
 	private BenchmarkResult benchmarkResult;
 	private long duration;
 	private int errors;
+	private int height;
 	@Id
 	@Convert(converter = UUIDConverter.class)
 	private UUID id;
@@ -22,13 +23,10 @@ public class ProcessResult implements Serializable {
 	private Path path;
 	private String result;
 	private String target;
+	private int width;
 
 	public ProcessResult() {
 		this.id = UUID.randomUUID();
-	}
-
-	public double getErrorRate() {
-		return this.errors / this.target.length();
 	}
 
 	public BenchmarkResult getBenchmarkResult() {
@@ -39,8 +37,16 @@ public class ProcessResult implements Serializable {
 		return this.duration;
 	}
 
+	public double getErrorRate() {
+		return this.errors / this.target.length();
+	}
+
 	public int getErrors() {
 		return this.errors;
+	}
+
+	public int getHeight() {
+		return this.height;
 	}
 
 	public UUID getId() {
@@ -59,6 +65,10 @@ public class ProcessResult implements Serializable {
 		return this.target;
 	}
 
+	public int getWidth() {
+		return this.width;
+	}
+
 	public void setBenchmarkResult(BenchmarkResult result) {
 		this.benchmarkResult = result;
 	}
@@ -69,6 +79,14 @@ public class ProcessResult implements Serializable {
 
 	public void setErrors(int errors) {
 		this.errors = errors;
+	}
+
+	public void setImageHeight(int height) {
+		this.height = height;
+	}
+
+	public void setImageWidth(int width) {
+		this.width = width;
 	}
 
 	public void setPath(Path path) {
