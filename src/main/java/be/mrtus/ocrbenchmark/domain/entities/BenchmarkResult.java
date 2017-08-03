@@ -17,10 +17,16 @@ public class BenchmarkResult implements Serializable {
 	@Id
 	@Convert(converter = UUIDConverter.class)
 	private UUID id;
+	private String library;
 
 	public BenchmarkResult() {
 		this.id = UUID.randomUUID();
 		this.createOn = Calendar.getInstance();
+	}
+
+	public BenchmarkResult(String library) {
+		this();
+		this.library = library;
 	}
 
 	public double getAvgAccuracy() {
@@ -37,6 +43,10 @@ public class BenchmarkResult implements Serializable {
 
 	public UUID getId() {
 		return this.id;
+	}
+
+	public String getLibrary() {
+		return this.library;
 	}
 
 	public void setAvgAccuracy(double avgAccuracy) {

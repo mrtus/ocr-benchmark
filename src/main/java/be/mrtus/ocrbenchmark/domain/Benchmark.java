@@ -47,7 +47,7 @@ public class Benchmark extends Thread {
 	public void run() {
 		this.startBenchmark();
 
-		BenchmarkResult result = new BenchmarkResult();
+		BenchmarkResult result = new BenchmarkResult(this.config.getLibrary());
 
 		this.benchmarkResultRepository.save(result);
 

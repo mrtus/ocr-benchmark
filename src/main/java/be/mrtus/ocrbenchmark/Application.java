@@ -16,11 +16,11 @@ import org.springframework.context.ApplicationContext;
 public class Application extends Thread {
 
 	@Autowired
+	private ResultAnalyser analyser;
+	@Autowired
 	private Benchmark benchmark;
 	@Autowired
 	private BenchmarkConfig config;
-	@Autowired
-	private ResultAnalyser analyser;
 	@Autowired
 	private FileConverterFactory factory;
 	@Autowired
