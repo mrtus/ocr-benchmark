@@ -20,6 +20,7 @@ public class ProcessResultRepositoryJPA implements ProcessResultRepository {
 	@Override
 	public void save(ProcessResult processResult) {
 		this.entityManager.merge(processResult);
+		this.entityManager.flush();
 	}
 
 	@Override
