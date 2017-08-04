@@ -3,7 +3,7 @@ package be.mrtus.ocrbenchmark.application.config.properties;
 import java.util.UUID;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("analyser")
+@ConfigurationProperties("benchmark.analyser")
 public class ResultAnalyserConfig {
 
 	private UUID benchmarkResultId;
