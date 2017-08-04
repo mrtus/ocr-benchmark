@@ -4,10 +4,13 @@ import be.mrtus.ocrbenchmark.domain.entities.BenchmarkResult;
 import be.mrtus.ocrbenchmark.domain.entities.LoadedFile;
 import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
 import be.mrtus.ocrbenchmark.domain.libraries.OCRLibrary;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 public class Processor extends Thread {
 
@@ -60,6 +63,19 @@ public class Processor extends Thread {
 		}
 	}
 
+	private void calculatePixels(ProcessResult result) {
+		try {
+			BufferedImage bi = ImageIO.read(result.getPath().toFile());
+
+			result.setImageWidth(bi.getWidth());
+			result.setImageHeight(bi.getHeight());
+
+			this.logger.info("Size " + bi.getWidth() + " x " + bi.getHeight());
+		} catch(IOException ex) {
+			this.logger.log(Level.SEVERE, null, ex);
+		}
+	}
+
 	private void doOcr(LoadedFile lf) {
 		long start = System.currentTimeMillis();
 
@@ -74,6 +90,7 @@ public class Processor extends Thread {
 		processResult.setResult(result);
 		processResult.setTarget(lf.getTarget());
 		processResult.setDuration(end - start);
+		this.calculatePixels(processResult);
 
 		int errors = Util.calculateLevenshteinDistance(processResult.getTarget(), processResult.getResult());
 
