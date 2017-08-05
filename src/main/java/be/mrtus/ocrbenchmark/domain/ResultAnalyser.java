@@ -74,6 +74,7 @@ public class ResultAnalyser extends Thread {
 					this.logger.info("group " + g.getId() + ": range: " + g.getMinValue() + " - " + g.getMaxValue());
 					this.logger.info("\t group size: " + g.getGroupSize());
 					this.logger.info("\t avg duration: " + g.getAvgDuration());
+					this.logger.info("\t avg error rate: " + g.getAvgErrorRate());
 				});
 
 		this.logger.info("Group partition results summary sorted on avg duration and group size > 1000");
