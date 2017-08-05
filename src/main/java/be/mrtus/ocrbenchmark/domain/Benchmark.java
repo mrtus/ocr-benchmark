@@ -35,7 +35,7 @@ public class Benchmark extends Thread {
 	private ProcessResultRepository processResultRepository;
 	private ExecutorService processorExecutor;
 	private final List<Processor> processors = new ArrayList<>();
-	private ArrayBlockingQueue<ProcessResult> queue;
+	private ArrayBlockingQueue<ProcessResult> saveQueue;
 	private ExecutorService savingExecutor;
 	private final AtomicInteger count = new AtomicInteger();
 
@@ -98,20 +98,20 @@ public class Benchmark extends Thread {
 		int size = this.config.getBenchmarkThreads();
 		this.processorExecutor = Executors.newFixedThreadPool(size);
 
-		int saveQueue = this.config.getSaveQueueSize();
-		this.queue = new ArrayBlockingQueue<>(saveQueue);
+		int saveQueueSize = this.config.getSaveQueueSize();
+		this.saveQueue = new ArrayBlockingQueue<>(saveQueueSize);
 
-		int saveThreads = this.config.getSaveThreads();
-		this.savingExecutor = Executors.newFixedThreadPool(saveThreads + 1);
+		int saveThreadsSize = this.config.getSaveThreads();
+		this.savingExecutor = Executors.newFixedThreadPool(saveThreadsSize + 1);
 
 		this.savingExecutor.execute(this.fileLoader);
 
-		IntStream.range(0, saveThreads)
+		IntStream.range(0, saveThreadsSize)
 				.forEach(i -> {
 					PersistProcessor processor = new PersistProcessor(
 							this,
 							this.processResultRepository,
-							this.queue
+							this.saveQueue
 					);
 
 					this.savingExecutor.execute(processor);
@@ -124,7 +124,7 @@ public class Benchmark extends Thread {
 					Processor processor = new Processor(
 							id,
 							this.fileLoader,
-							this.queue,
+							this.saveQueue,
 							result,
 							library,
 							this.count
