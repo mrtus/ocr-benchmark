@@ -122,7 +122,6 @@ public class Benchmark extends Thread {
 					OCRLibrary library = this.libraryFactory.build(this.config.getLibrary());
 
 					Processor processor = new Processor(
-							id,
 							this.fileLoader,
 							this.saveQueue,
 							result,

@@ -17,21 +17,18 @@ public class Processor extends Thread {
 	private final AtomicInteger count;
 	private final FileLoader fileLoader;
 	private ArrayBlockingQueue<LoadedFile> fileQueue;
-	private final int id;
 	private final OCRLibrary library;
 	private final Logger logger = Logger.getLogger(Processor.class.getName());
 	private final ArrayBlockingQueue<ProcessResult> saveQueue;
 	private final BenchmarkResult result;
 
 	public Processor(
-			int id,
 			FileLoader fileLoader,
 			ArrayBlockingQueue<ProcessResult> saveQueue,
 			BenchmarkResult result,
 			OCRLibrary library,
 			AtomicInteger count
 	) {
-		this.id = id;
 		this.fileLoader = fileLoader;
 		this.saveQueue = saveQueue;
 		this.result = result;
@@ -39,7 +36,6 @@ public class Processor extends Thread {
 		this.count = count;
 
 		this.setDaemon(true);
-		this.setName("Benchmark Processor " + this.id);
 	}
 
 	@Override
