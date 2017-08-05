@@ -147,10 +147,10 @@ public class ResultAnalyser extends Thread {
 		double pixelDiff = maxPixels.getAsDouble() - minPixels.getAsDouble();
 
 		int numPartitions = this.config.getPartitionSize();
-		double range = pixelDiff / numPartitions;
+		double range = Math.ceil(pixelDiff / numPartitions);
 
 		List<GroupPartition> partitions = new ArrayList<>();
-		GroupPartition startGroup = new GroupPartition(1, minPixels.getAsDouble(), minPixels.getAsDouble() + range);
+		GroupPartition startGroup = new GroupPartition(1, minPixels.getAsDouble() - 1, minPixels.getAsDouble() + range);
 		partitions.add(startGroup);
 		GroupPartition previousGroup = startGroup;
 		for(int i = 1; i <= numPartitions; i++) {
