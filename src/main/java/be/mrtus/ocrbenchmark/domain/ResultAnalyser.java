@@ -80,7 +80,12 @@ public class ResultAnalyser extends Thread {
 		partitionGroups.stream()
 				.filter(g -> g.getGroupSize() > 1000)
 				.sorted((g1, g2) -> Double.compare(g1.getAvgDuration(), g2.getAvgDuration()))
-				.forEach(g -> this.logger.info("group " + g.getId() + ": group size: " + g.getGroupSize() + " avg duration: " + g.getAvgDuration()));
+				.forEach(g -> this.logger.info(
+								"group " + g.getId() + ":"
+								+ " group size: " + g.getGroupSize()
+								+ " avg duration: " + g.getAvgDuration()
+						)
+				);
 
 		long end = System.currentTimeMillis();
 
