@@ -38,7 +38,7 @@ public class ResultAnalyser extends Thread {
 		int size = 100_000;
 		List<ProcessResult> partialResults;
 		do {
-			this.logger.info("Retreiving for offset " + offset);
+			this.logger.info("Retrieving for offset " + offset);
 
 			partialResults = this.processResultRepository.findAllByBenchmarkResultId(
 					result.getId(),
