@@ -3,6 +3,7 @@ package be.mrtus.ocrbenchmark.domain;
 import be.mrtus.ocrbenchmark.domain.entities.ProcessResult;
 import be.mrtus.ocrbenchmark.persistence.ProcessResultRepository;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PersistProcessor extends Thread {
@@ -39,7 +40,11 @@ public class PersistProcessor extends Thread {
 
 			long start = System.currentTimeMillis();
 
-			this.processResultRepository.save(result);
+			try {
+				this.processResultRepository.save(result);
+			} catch(Exception e) {
+				this.logger.log(Level.SEVERE, null, e);
+			}
 
 			long end = System.currentTimeMillis();
 
