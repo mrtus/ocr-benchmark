@@ -16,7 +16,7 @@ public class GroupPartition {
 	}
 
 	public boolean between(double pixelCount) {
-		return this.minValue <= pixelCount && pixelCount <= this.maxValue;
+		return this.minValue < pixelCount && pixelCount <= this.maxValue;
 	}
 
 	public double getAvgDuration() {

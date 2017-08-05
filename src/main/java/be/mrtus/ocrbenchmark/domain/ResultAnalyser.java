@@ -148,7 +148,7 @@ public class ResultAnalyser extends Thread {
 		partitions.add(startGroup);
 		GroupPartition previousGroup = startGroup;
 		for(int i = 1; i <= numPartitions; i++) {
-			GroupPartition group = new GroupPartition(i + 1, previousGroup.getMaxValue() + 1, previousGroup.getMaxValue() + range);
+			GroupPartition group = new GroupPartition(i + 1, previousGroup.getMaxValue(), previousGroup.getMaxValue() + range);
 
 			partitions.add(group);
 
