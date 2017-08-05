@@ -7,11 +7,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ResultAnalyserConfig {
 
 	private UUID benchmarkResultId;
+	private int partitionSize;
 	private int queueSize;
 	private int threads;
 
 	public UUID getBenchmarkResultId() {
 		return this.benchmarkResultId;
+	}
+
+	public int getPartitionSize() {
+		return this.partitionSize;
 	}
 
 	public int getQueueSize() {
@@ -24,6 +29,10 @@ public class ResultAnalyserConfig {
 
 	public void setBenchmarkResultId(String benchmarkResultId) {
 		this.benchmarkResultId = UUID.fromString(benchmarkResultId);
+	}
+
+	public void setPartitionSize(int partitionSize) {
+		this.partitionSize = partitionSize;
 	}
 
 	public void setQueueSize(int queueSize) {

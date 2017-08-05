@@ -57,6 +57,10 @@ public class ProcessResult implements Serializable {
 		return this.path;
 	}
 
+	public double getPixelCount() {
+		return this.width * this.height;
+	}
+
 	public String getResult() {
 		return this.result;
 	}

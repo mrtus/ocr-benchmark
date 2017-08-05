@@ -31,8 +31,11 @@ public class Util {
 	}
 
 	public static int calculateLevenshteinDistance(String target, String result) {
-		int resultLength = result.length();
-		int targetLenth = target.length();
+		final String lowerCasedTarget = target.toLowerCase();
+		final String lowerCasedResult = result.toLowerCase();
+
+		int resultLength = lowerCasedResult.length();
+		int targetLenth = lowerCasedTarget.length();
 
 		if(resultLength == 0) {
 			return targetLenth;
@@ -52,11 +55,11 @@ public class Util {
 
 		IntStream.range(0, resultLength)
 				.forEach(i -> {
-					char resultChar = result.charAt(i);
+					char resultChar = lowerCasedResult.charAt(i);
 
 					IntStream.range(0, targetLenth)
 					.forEach(j -> {
-						char targetChar = target.charAt(j);
+						char targetChar = lowerCasedTarget.charAt(j);
 						int cost;
 
 						if(resultChar == targetChar) {
