@@ -3,6 +3,7 @@ package be.mrtus.ocrbenchmark;
 import be.mrtus.ocrbenchmark.application.config.properties.BenchmarkConfig;
 import be.mrtus.ocrbenchmark.application.config.properties.converters.FileConverterConfig;
 import be.mrtus.ocrbenchmark.domain.Benchmark;
+import be.mrtus.ocrbenchmark.domain.Deleter;
 import be.mrtus.ocrbenchmark.domain.ResultAnalyser;
 import be.mrtus.ocrbenchmark.domain.fileconverters.FileConverterFactory;
 import java.util.logging.Level;
@@ -21,6 +22,8 @@ public class Application extends Thread {
 	private Benchmark benchmark;
 	@Autowired
 	private BenchmarkConfig config;
+	@Autowired
+	private Deleter deleter;
 	@Autowired
 	private FileConverterFactory factory;
 	@Autowired
@@ -59,6 +62,14 @@ public class Application extends Thread {
 
 			try {
 				this.analyser.join();
+			} catch(InterruptedException ex) {
+				Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		} else if(this.config.getMode().equalsIgnoreCase("DELETER")) {
+			this.deleter.start();
+
+			try {
+				this.deleter.join();
 			} catch(InterruptedException ex) {
 				Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
 			}

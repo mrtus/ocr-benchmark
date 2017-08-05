@@ -1,6 +1,7 @@
 package be.mrtus.ocrbenchmark.application.config;
 
 import be.mrtus.ocrbenchmark.domain.Benchmark;
+import be.mrtus.ocrbenchmark.domain.Deleter;
 import be.mrtus.ocrbenchmark.domain.FileLoader;
 import be.mrtus.ocrbenchmark.domain.ResultAnalyser;
 import be.mrtus.ocrbenchmark.domain.fileconverters.FileConverterA;
@@ -16,6 +17,11 @@ public class ApplicationConfig {
 	@Bean
 	public Benchmark benchmark() {
 		return new Benchmark();
+	}
+
+	@Bean
+	public Deleter deleter() {
+		return new Deleter();
 	}
 
 	@Bean

@@ -8,5 +8,7 @@ public interface ProcessResultRepository {
 
 	public List<ProcessResult> findAllByBenchmarkResultId(UUID id, int offset, int size);
 
+	public List<ProcessResult> findFaultyFiles(UUID id, int maxWidth, int minTargetLength);
+
 	public void save(ProcessResult processResult);
 }
