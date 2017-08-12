@@ -35,7 +35,7 @@ public class ResultAnalyser extends Thread {
 		List<ProcessResult> results = new ArrayList<>();
 
 		int offset = 0;
-		int size = 100_000;
+		int size = 1_000_000;
 		List<ProcessResult> partialResults;
 		do {
 			this.logger.info("Retrieving for offset " + offset);
@@ -54,7 +54,7 @@ public class ResultAnalyser extends Thread {
 		this.logger.info("========== Results ==========");
 
 		OptionalDouble avgDuration = this.calculateAvgDuration(results);
-		this.logger.info("avg duration " + avgDuration.getAsDouble());
+		this.logger.info("avg duration: " + avgDuration.getAsDouble());
 
 		OptionalDouble avgErrorRate = this.calculateAvgErrorRate(results);
 		this.logger.info("avg accuracy: " + (1 - avgErrorRate.getAsDouble()));
@@ -74,13 +74,14 @@ public class ResultAnalyser extends Thread {
 					this.logger.info("group " + g.getId() + ": range: " + g.getMinValue() + " - " + g.getMaxValue());
 					this.logger.info("\t group size: " + g.getGroupSize());
 					this.logger.info("\t avg duration: " + g.getAvgDuration());
+					this.logger.info("\t avg duration per 1000 pixels: " + g.getAvgPer1000Pixels());
 					this.logger.info("\t avg error rate: " + g.getAvgErrorRate());
 				});
 
-		this.logger.info("Group partition results summary sorted on avg duration and group size > 1000");
+		this.logger.info("Group partition results summary sorted on avg duration and group size > 100");
 		partitionGroups.stream()
-				.filter(g -> g.getGroupSize() > 1000)
-				.sorted((g1, g2) -> Double.compare(g1.getAvgDuration(), g2.getAvgDuration()))
+				.filter(g -> g.getGroupSize() > 100)
+				.sorted((g1, g2) -> Double.compare(g1.getId(), g2.getId()))
 				.forEach(g -> this.logger.info(
 								"group " + g.getId() + ":"
 								+ " group size: " + g.getGroupSize()
@@ -132,6 +133,11 @@ public class ResultAnalyser extends Thread {
 
 					OptionalDouble avgDuration = this.calculateAvgDuration(results);
 					group.setAvgDuration(avgDuration.getAsDouble());
+
+					OptionalDouble avgPer1000Pixel = results.stream()
+					.mapToDouble(r -> ((r.getDuration()-105) / r.getPixelCount()) * 1000)
+					.average();
+					group.setAvgPer1000Pixels(avgPer1000Pixel.getAsDouble());
 
 					OptionalDouble avgErrorRate = this.calculateAvgErrorRate(results);
 					group.setAvgErrorRate(avgErrorRate.getAsDouble());

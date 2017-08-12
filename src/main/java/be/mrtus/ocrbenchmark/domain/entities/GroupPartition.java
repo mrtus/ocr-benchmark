@@ -4,6 +4,7 @@ public class GroupPartition {
 
 	private double avgDuration;
 	private double avgErrorRate;
+	private double avgPer1000Pixels;
 	private int groupSize;
 	private final int id;
 	private double maxValue;
@@ -25,6 +26,10 @@ public class GroupPartition {
 
 	public double getAvgErrorRate() {
 		return this.avgErrorRate;
+	}
+
+	public double getAvgPer1000Pixels() {
+		return this.avgPer1000Pixels;
 	}
 
 	public int getGroupSize() {
@@ -49,6 +54,10 @@ public class GroupPartition {
 
 	public void setAvgErrorRate(double avgErrorRate) {
 		this.avgErrorRate = avgErrorRate;
+	}
+
+	public void setAvgPer1000Pixels(double avgPer1000Pixels) {
+		this.avgPer1000Pixels = avgPer1000Pixels;
 	}
 
 	public void setGroupSize(int size) {
