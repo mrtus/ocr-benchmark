@@ -1,5 +1,6 @@
 package be.mrtus.ocrbenchmark.domain.entities;
 
+import be.mrtus.ocrbenchmark.domain.Util;
 import be.mrtus.ocrbenchmark.persistence.convertors.PathConverter;
 import be.mrtus.ocrbenchmark.persistence.convertors.UUIDConverter;
 import java.io.Serializable;
@@ -14,7 +15,6 @@ public class ProcessResult implements Serializable {
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = false)
 	private BenchmarkResult benchmarkResult;
 	private long duration;
-	private int errors;
 	private int height;
 	@Id
 	@Convert(converter = UUIDConverter.class)
@@ -38,11 +38,11 @@ public class ProcessResult implements Serializable {
 	}
 
 	public double getErrorRate() {
-		return this.errors / this.target.length();
+		return this.getErrors() / this.target.length();
 	}
 
 	public int getErrors() {
-		return this.errors;
+		return Util.calculateLevenshteinDistance(this.result.trim(), this.target.trim());
 	}
 
 	public int getHeight() {
@@ -79,10 +79,6 @@ public class ProcessResult implements Serializable {
 
 	public void setDuration(long duration) {
 		this.duration = duration;
-	}
-
-	public void setErrors(int errors) {
-		this.errors = errors;
 	}
 
 	public void setImageHeight(int height) {

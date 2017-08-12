@@ -83,14 +83,10 @@ public class Processor extends Thread {
 
 		processResult.setBenchmarkResult(this.result);
 		processResult.setPath(lf.getPath());
-		processResult.setResult(result);
-		processResult.setTarget(lf.getTarget());
+		processResult.setResult(result.trim());
+		processResult.setTarget(lf.getTarget().trim());
 		processResult.setDuration(end - start);
 		this.calculatePixels(processResult);
-
-		int errors = Util.calculateLevenshteinDistance(processResult.getTarget(), processResult.getResult());
-
-		processResult.setErrors(errors);
 
 		try {
 			this.saveQueue.put(processResult);
